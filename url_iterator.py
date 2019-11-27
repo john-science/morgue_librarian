@@ -2,25 +2,11 @@ from datetime import datetime
 from random import choice, random, shuffle
 from time import sleep
 
-URLS = """http://webzook.net/soup/morgue/trunk/Vega/morgue-Vega-20160405-021403.txt
-http://webzook.net/soup/morgue/trunk/vegetableman/morgue-vegetableman-20160209-013311.txt
-http://webzook.net/soup/morgue/trunk/vegetableman/morgue-vegetableman-20160707-113737.txt
-http://crawl.akrasiac.org/rawdata/0Int/morgue-0Int-20151215-032229.txt
-http://crawl.akrasiac.org/rawdata/0mnicide/morgue-0mnicide-20160427-220429.txt
-http://crawl.kelbi.org/crawl/morgue/holysushi/morgue-holysushi-20190326-132804.txt
-http://crawl.kelbi.org/crawl/morgue/holysushi/morgue-holysushi-20190326-132912.txt
-https://crawl.project357.org/morgue/0range/morgue-0range-20170820-050058.txt
-https://crawl.project357.org/morgue/123/morgue-123-20190523-124620.txt
-""".strip().split('\n')
-
-
-def main():
-    ui = URLIterator(URLS, 1.5)
-    for url in ui:
-        print(url)
-
 
 class URLIterator:
+    """ A Helpful iterator designed to loop through a set of URLs,
+    with an eye towards not hitting the same URL too often
+    """
 
     def __init__(self, url_set, wait=60.0):
         # load set of URLs into interleaving dictionary
@@ -39,7 +25,7 @@ class URLIterator:
 
         # set the last time each base URL has been hit
         self.last_times = {}
-        last = datetime.now().timestamp() - self.wait * 2
+        last = datetime.now().timestamp() - 2 * self.wait
         for base_url in self.urls:
             self.last_times[base_url] = last
 
@@ -63,14 +49,16 @@ class URLIterator:
         # Okay, we need to iterate over something, pick a random element
         new_keys = set(self.urls.keys()) - {self.last_base_url}
         if not len(new_keys):
+            # if there is only one base URL left
             new_key = self.last_base_url
         else:
-            # TODO: We need to find one OTHER than the one we picked last time.
-            new_key = choice(list(new_keys))
+            # If there are multiple base URLs left, choose one that hasn't been hit lately.
+            oldest_time = min(self.last_times[u] for u in new_keys)
+            lonliest_urls = [u for u in new_keys if self.last_times[u] == oldest_time]
+            new_key = choice(lonliest_urls)
 
         # Wait, if need be.
         if new_key == self.last_base_url or (datetime.now().timestamp() - self.last_times[new_key]) < self.wait:
-            print('==================== WAITING ==========================')  # TODO: Just for testing
             sleep(self.wait + 0.25 * self.wait * random())
 
         # FINALLY, return the next URL

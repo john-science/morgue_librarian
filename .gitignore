@@ -1,5 +1,6 @@
 # skip all data files
 *.bz2
+morgue_urls_*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
