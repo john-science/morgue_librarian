@@ -15,7 +15,7 @@ def main():
         urls = open(master_file, 'r').readlines()
 
     # TODO: write the results to output files (every 30 minutes)
-    # TODO: smart sleeping when rotating through URLs
+    url_iter = URLIterator(urls)
     for url in urls:
         if url.startswith('http'):
             txt = read_url(url)
