@@ -1,8 +1,16 @@
 """
 """
+from datetime import datetime
 from bz2 import BZ2File
 import requests
 from sys import argv
+
+# CONSTANTS (PROBABLY TO BE MOVED TO CLASS VARIABLES)
+LOSERS = 'losers_'
+MORGUE_LIST = 'morgue_urls_'
+PARSER_ERRORS = 'parser_errors_'
+WINNERS = 'winners_'
+DT_FMT = '%Y%m%d_%H%M%S'
 
 
 # TODO: create a callable non-main function
@@ -16,7 +24,13 @@ def main():
         else:
             urls += open(master_file, 'r').readlines()
 
-    # TODO: write the results to output files (every 30 minutes)
+    # init output files
+    dt_now = current_datetime_string()
+    winner_file = open('{0}{1}.txt'.format(WINNERS, dt_now), 'a+')
+    loser_file = open('{0}{1}.txt'.format(WINNERS, dt_now), 'a+')
+    error_file = open('{0}{1}.txt'.format(WINNERS, dt_now), 'a+')
+
+    # loop through each morgue file/URL and parse it, save the results to files
     url_iter = URLIterator(urls)
     for url in urls:
         if url.startswith('http'):
@@ -26,15 +40,25 @@ def main():
 
         try:
             spec, back, god, runes, ver = parse_one_morgue(txt)
-            print('{0}{1}^{2},{3},{4}'.format(spec, back, god, runes, ver))
-        except ParserError as e:
-            print('ParserError', e, url)
+            winner_file.write('{0}\t{1}{2}^{3},{4},{5}\n'.format(url, spec, back, god, runes, ver))
         except Loser:
-            print('Loser', url)
+            loser_file.write('{0}\n'.format(url))
+        except ParserError as e:
+            loser_file.write('{0}\t{1}\n'.format(url, e.replace('\n', '    ')))
+
+    # cleanup (could be avoided using a `with` statement)
+    winner_file.close()
+    loser_file.close()
+    error_file.close()
 
 
 def read_url(url):
     """ Read the text from a URL
+
+    Args:
+        url (str): HTML address for a morgue file
+    Returns:
+        str: content of the URL
     """
     r = requests.get(url)
     return r.content.decode("utf-8")
@@ -42,11 +66,25 @@ def read_url(url):
 
 def read_file(file_path):
     """ Read the text from a file
+
+    Args:
+        file_path (str): path to the morgue file
+    Returns:
+        str: content of the file
     """
     return open(file_path, 'r').read()
 
 
 def parse_one_morgue(txt):
+    """ Parse the text of a single morgue file, to try and determine:
+    1. Did the player win this game?
+    2. If so, what was their character build, how many runes did they get?
+
+    Args:
+        txt (str): full text dump of morgue file
+    Returns:
+        tuple: species, background, god, num_runes, version
+    """
     txt = strip_html(txt)
 
     lines = txt.split('\n')[:20]
@@ -118,6 +156,11 @@ def parse_one_morgue(txt):
 
 def strip_html(txt):
     """ strip HTML from a non-raw dump, if any exists
+
+    Args:
+        txt (str): raw text of morgue file
+    Returns:
+        str: text of morgue file, with any HTML hopefully stripped out
     """
     if "<!DOCTYPE html>" in txt or "<html>" in txt:
         i = txt.find(' Dungeon Crawl Stone Soup version ')
@@ -129,6 +172,15 @@ def strip_html(txt):
         return txt
 
 
+def current_datetime_string():
+    """ Get the current datetime in a simple format useful for file names
+
+    Returns:
+        str: current datetime, to the second
+    """
+    return datetime.now().strftime(DT_FMT)
+
+
 class Loser(Exception):
     pass
 
@@ -137,6 +189,7 @@ class ParserError(Exception):
     pass
 
 
+# Below are the data for all valid character build types, mapped to the shorthands players use.
 SPECIES = {'barachian': 'Br', 'black draconian': 'Dr', 'centaur': 'Ce', 'deep dwarf': 'DD', 'deep elf': 'DE',
            'demigod': 'Dg', 'demonspawn': 'Ds', 'djinni': 'Dj', 'draconian': 'Dr', 'felid': 'Fe', 'formicid': 'Fo',
            'gargoyle': 'Gr', 'ghoul': 'Gh', 'green draconian': 'Dr', 'grey draconian': 'Dr', 'grotesk': 'Gr',
