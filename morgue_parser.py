@@ -7,12 +7,14 @@ from sys import argv
 
 # TODO: create a callable non-main function
 def main():
-    master_file = argv[1]
-    if master_file.endswith('.bz2'):
-        urls = bz2.BZ2File(master_file, 'r').readlines()
-        urls = [u.decode('utf-8') for u in urls]
-    else:
-        urls = open(master_file, 'r').readlines()
+    # the user will pass in some file filled with links / paths to morgues
+    urls = []
+    for master_file in argv[1:]:
+        if master_file.endswith('.bz2'):
+            binary_urls = bz2.BZ2File(master_file, 'r').readlines()
+            urls += [u.decode('utf-8') for u in binary_urls]
+        else:
+            urls += open(master_file, 'r').readlines()
 
     # TODO: write the results to output files (every 30 minutes)
     url_iter = URLIterator(urls)
