@@ -1,4 +1,19 @@
-"""
+""" Morgue Spider
+
+I use this script to spider various DCSS websites to find morgue files.
+
+PLEASE BE CAREFUL.
+
+The people who run DCSS websites do so at their own personal cost.
+They do not have the resources of a billion-dollar company, and you CAN cost significant
+problems for them by bogging down their servers were tons of spider requests.
+
+The absolute MINIMUM wait time you should use between spider requests is 1 minute. This is the
+industry standard spider wait time used by Google.  But Google isn't trying to be a good citizen.
+The longer the wait you put on this spider script, the nicer you will be to the people that
+volunteer their time to run DCSS's non-profit websites.
+
+Please consider setting WAIT_SECONDS to 120. or longer, and never run this script in parallel.
 """
 from bs4 import BeautifulSoup
 from bz2 import BZ2File
@@ -9,27 +24,30 @@ from requests import get as get_url
 from url_iterator import URLIterator
 
 # CONSTANTS
-SEARCH_DEPTH = 2
-TIMEOUT_SECONDS = 60 * 30
+AUTO_SAVE_SECONDS = 60 * 30
+SEARCH_DEPTH = 3
 WAIT_SECONDS = 60.0
 OUT_NAME = 'morgue_urls'
 URLS = ['http://crawl.akrasiac.org/scoring/per-day.html',
-        'http://crawl.akrasiac.org/scoring/best-players-total-score.html',
         'https://crawl.kelbi.org/scoring/highscores.html']
 
 
 def main():
     urls = set(URLS)
     out_name = str(OUT_NAME)
-    timeout = int(TIMEOUT_SECONDS)
+    auto_save = int(AUTO_SAVE_SECONDS)
     wait = float(WAIT_SECONDS)
     depth = int(SEARCH_DEPTH)
 
-    all_urls = morgue_spider(set(urls), urls, out_name, timeout, wait, depth)
+    # let's be good citizens
+    if auto_save < 60:
+        auto_save == 60.0
+
+    all_urls = morgue_spider(set(urls), urls, out_name, auto_save, wait, depth)
     print('Spidered {0} URLs'.format(len(all_urls)))
 
 
-def morgue_spider(all_urls, new_urls, out_name='morgue_urls', timeout=1800, wait=60., depth=5):
+def morgue_spider(all_urls, new_urls, out_name='morgue_urls', auto_save=1800, wait=60., depth=5):
     """ Spider through all the links you can find, recursively, to look for DCSS morgue files,
     write all those you find to a simple text file
 
@@ -37,7 +55,7 @@ def morgue_spider(all_urls, new_urls, out_name='morgue_urls', timeout=1800, wait
         all_urls (set): All the URLs you have previously seen
         new_urls (set): All the new URLs you need to spider this time through
         out_name (str): Filename prefix for lists of morgue URLs
-        timeout (int): Number of seconds before writing an intermediary output file
+        auto_save (int): Number of seconds before writing an intermediary output file
         wait (float): Minimum time to wait between HTTP requests
         depth (int): Number of links to follow down into, spidering depth
     Returns:
@@ -64,7 +82,7 @@ def morgue_spider(all_urls, new_urls, out_name='morgue_urls', timeout=1800, wait
         newer_urls.update(find_links_in_file(url))
 
         # write a temp output file if it's been too long
-        if datetime.now().timestamp() - start > timeout:
+        if datetime.now().timestamp() - start > auto_save:
             write_morgue_urls_to_file(newer_urls - all_urls, out_name)
             start = datetime.now().timestamp()
             print('\t', end='', flush=True)
@@ -73,7 +91,7 @@ def morgue_spider(all_urls, new_urls, out_name='morgue_urls', timeout=1800, wait
     newer_urls = newer_urls - all_urls
     write_morgue_urls_to_file(newer_urls, out_name)
 
-    return morgue_spider(all_urls.union(newer_urls), newer_urls, out_name, timeout, wait, depth - 1)
+    return morgue_spider(all_urls.union(newer_urls), newer_urls, out_name, auto_save, wait, depth - 1)
 
 
 def looks_crawl_related(url):

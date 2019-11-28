@@ -1,4 +1,17 @@
-"""
+""" Morgue Parser
+
+This the major tool I use to parse through large numbers of DCSS morgue files to determine:
+
+1. Which morgues represent winning runs.
+2. What was the build of the winning character.
+3. How many runes were collected before the win.
+4. What version of DCSS was the game played on.
+
+From this information I hope to learn about the high-level strategies of people who won
+games playing similar character builds to myself.
+
+But a side result of this data mining is I can learn lots of other things. For instance,
+what percentage of games do players win?
 """
 from datetime import datetime
 from bz2 import BZ2File
@@ -24,32 +37,33 @@ def main():
         else:
             urls += open(master_file, 'r').readlines()
 
-    # init output files
+    # init new output files
     dt_now = current_datetime_string()
-    winner_file = open('{0}{1}.txt'.format(WINNERS, dt_now), 'a+')
-    loser_file = open('{0}{1}.txt'.format(WINNERS, dt_now), 'a+')
-    error_file = open('{0}{1}.txt'.format(WINNERS, dt_now), 'a+')
+    wf = '{0}{1}.txt'.format(WINNERS, dt_now)
+    lf = '{0}{1}.txt'.format(LOSERS, dt_now)
+    ef = '{0}{1}.txt'.format(PARSER_ERRORS, dt_now)
 
     # loop through each morgue file/URL and parse it, save the results to files
     url_iter = URLIterator(urls)
     for url in urls:
+        # TODO: make sure we haven't already parsed this morgue
+
+        # parse the text file or HTML link
         if url.startswith('http'):
             txt = read_url(url)
         else:
             txt = read_file(url)
 
+        # parse the file and write any results to output files
         try:
             spec, back, god, runes, ver = parse_one_morgue(txt)
-            winner_file.write('{0}\t{1}{2}^{3},{4},{5}\n'.format(url, spec, back, god, runes, ver))
+            open(wf, 'a+').write('{0}\t{1}{2}^{3},{4},{5}\n'.format(url, spec, back, god, runes, ver))
         except Loser:
-            loser_file.write('{0}\n'.format(url))
+            open(lf, 'a+').write('{0}\n'.format(url))
         except ParserError as e:
-            loser_file.write('{0}\t{1}\n'.format(url, e.replace('\n', '    ')))
-
-    # cleanup (could be avoided using a `with` statement)
-    winner_file.close()
-    loser_file.close()
-    error_file.close()
+            open(ef, 'a+').write('{0}\tParserError{1}\n'.format(url, e.replace('\n', '    ')))
+        except Exception as e:
+            open(ef, 'a+').write('{0}\tUnknownError{1}\n'.format(url, e.replace('\n', '    ')))
 
 
 def read_url(url):
