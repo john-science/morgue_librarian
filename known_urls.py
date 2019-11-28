@@ -21,7 +21,7 @@ class KnownURLs:
         known_morgues = set()
 
         for d in self.dirs:
-            for prefix in self.file_prefixes
+            for prefix in self.file_prefixes:
                 # read any old outputs that are in plain txt format
                 old_morgue_files = glob(os.path.join(d, prefix + '*.txt'))
                 for old_file in old_morgue_files:
@@ -40,3 +40,6 @@ class KnownURLs:
         """
         for url in urls:
             self.known_morgues.add(hash(url))
+
+    def __in__(self, url):
+        return hash(url) in self.known_morgues
