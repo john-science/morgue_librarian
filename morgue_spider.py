@@ -1,5 +1,10 @@
 """ Morgue Spider
 
+      / _ \
+    \_\(_)/_/
+     _//"\\_
+      /   \
+
 I use this script to spider various DCSS websites to find morgue files.
 
 PLEASE BE CAREFUL.
@@ -21,6 +26,7 @@ from datetime import datetime
 from glob import glob
 from random import random
 from requests import get as get_url
+from sys import argv
 from known_morgues import KnownMorgues
 from url_iterator import URLIterator
 
@@ -30,12 +36,12 @@ SEARCH_DEPTH = 3
 WAIT_SECONDS = 60.0
 OUT_DIR = 'data'
 OUT_NAME = 'morgue_urls'
-URLS = ['http://crawl.akrasiac.org/scoring/per-day.html',
-        'https://crawl.kelbi.org/scoring/highscores.html']
+STARTING_URL_FILE = 'data/starting_urls.txt'
 
 
+# TODO: Add commandline parsing
 def main():
-    urls = set(URLS)
+    starting_url_file = set(STARTING_URL_FILE)
     out_dir = str(OUT_DIR)
     out_name = str(OUT_NAME)
     auto_save = int(AUTO_SAVE_SECONDS)
@@ -46,7 +52,9 @@ def main():
     if auto_save < 60:
         auto_save == 60.0
 
-    all_urls = morgue_spider(set(urls), urls, out_dir, out_name, auto_save, wait, depth)
+    starting_urls = [u.strip() for u in open(starting_url_file, 'r').readlines()]
+
+    all_urls = morgue_spider(set(starting_urls), starting_urls, out_dir, out_name, auto_save, wait, depth)
     print('Spidered {0} URLs'.format(len(all_urls)))
 
 
