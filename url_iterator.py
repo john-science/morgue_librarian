@@ -59,8 +59,10 @@ class URLIterator:
             new_key = choice(lonliest_urls)
 
         # Wait, if need be.
-        if new_key == self.last_base_url or max(0, datetime.now().timestamp() - self.last_times[new_key]) < self.wait:
-            sleep(self.wait + 0.25 * self.wait * random())
+        waited = max(0, datetime.now().timestamp() - self.last_times[new_key])
+        if new_key == self.last_base_url or waited < self.wait:
+            to_wait = min(self.wait, self.wait - waited)
+            sleep(to_wait + 0.2 * self.wait * random())
 
         # FINALLY, return the next URL
         self.last_times[new_key] = datetime.now().timestamp()

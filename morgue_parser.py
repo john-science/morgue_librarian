@@ -13,8 +13,9 @@ games playing similar character builds to myself.
 But a side result of this data mining is I can learn lots of other things. For instance,
 what percentage of games do players win?
 """
-from datetime import datetime
 from bz2 import BZ2File
+from datetime import datetime
+import os
 from random import choice
 import requests
 from sys import argv
@@ -34,7 +35,7 @@ DT_FMT = '%Y%m%d_%H%M%S'
 # TODO: Add commandline parsing
 # TODO: create a callable non-main function
 def main():
-    morgue_parser(master_files)
+    morgue_parser(argv[1:])
 
 
 def morgue_parser(master_files):
