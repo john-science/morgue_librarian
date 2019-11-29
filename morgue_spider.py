@@ -28,14 +28,15 @@ from url_iterator import URLIterator
 AUTO_SAVE_SECONDS = 60 * 30
 SEARCH_DEPTH = 3
 WAIT_SECONDS = 60.0
+OUT_DIR = 'data'
 OUT_NAME = 'morgue_urls'
 URLS = ['http://crawl.akrasiac.org/scoring/per-day.html',
         'https://crawl.kelbi.org/scoring/highscores.html']
 
 
-# TODO: We need to support reading from/writing to a configurable directory
 def main():
     urls = set(URLS)
+    out_dir = str(OUT_DIR)
     out_name = str(OUT_NAME)
     auto_save = int(AUTO_SAVE_SECONDS)
     wait = float(WAIT_SECONDS)
@@ -45,11 +46,11 @@ def main():
     if auto_save < 60:
         auto_save == 60.0
 
-    all_urls = morgue_spider(set(urls), urls, out_name, auto_save, wait, depth)
+    all_urls = morgue_spider(set(urls), urls, out_dir, out_name, auto_save, wait, depth)
     print('Spidered {0} URLs'.format(len(all_urls)))
 
 
-def morgue_spider(all_urls, new_urls, out_name='morgue_urls', auto_save=1800, wait=60., depth=5):
+def morgue_spider(all_urls, new_urls, out_dir='data', out_name='morgue_urls', auto_save=1800, wait=60., depth=5):
     """ Spider through all the links you can find, recursively, to look for DCSS morgue files,
     write all those you find to a simple text file
 
@@ -85,15 +86,15 @@ def morgue_spider(all_urls, new_urls, out_name='morgue_urls', auto_save=1800, wa
 
         # write a temp output file if it's been too long
         if datetime.now().timestamp() - start > auto_save:
-            write_morgue_urls_to_file(newer_urls - all_urls, out_name)
+            write_morgue_urls_to_file(newer_urls - all_urls, out_dir, out_name)
             start = datetime.now().timestamp()
             print('\t', end='', flush=True)
 
     # write any new morgues you found to file
     newer_urls = newer_urls - all_urls
-    write_morgue_urls_to_file(newer_urls, out_name)
+    write_morgue_urls_to_file(newer_urls, out_dir, out_name)
 
-    return morgue_spider(all_urls.union(newer_urls), newer_urls, out_name, auto_save, wait, depth - 1)
+    return morgue_spider(all_urls.union(newer_urls), newer_urls, out_dir, out_name, auto_save, wait, depth - 1)
 
 
 def looks_crawl_related(url):
@@ -129,7 +130,7 @@ def find_links_in_file(url):
     return set([a['href'].strip() for a in all_links])
 
 
-def write_morgue_urls_to_file(all_urls, out_name='morgue_urls'):
+def write_morgue_urls_to_file(all_urls, out_dir='data', out_name='morgue_urls'):
     """ Write all the morgues you found to a simple text file,
     checking to make sure you haven't found it before
 
@@ -138,11 +139,11 @@ def write_morgue_urls_to_file(all_urls, out_name='morgue_urls'):
         out_name (str): Filename prefix for morgue lists
     Returns: None
     """
-    urls = find_morgues(all_urls)
-
     # if we have run this script before, we will already have files saved with morgue addresses
-    known_morgues = KnownMorgues([out_name])
+    known_morgues = KnownMorgues([out_name], [out_dir])
 
+    # find all the morgues we found (that are new)
+    urls = find_morgues(all_urls)
     urls = [u for u in urls if not known_morgues.includes(u)]
 
     if not len(urls):
@@ -151,7 +152,8 @@ def write_morgue_urls_to_file(all_urls, out_name='morgue_urls'):
         print("\n\tWriting {0} new morgues to file.".format(len(urls)))
 
     # write all the new and unique morgues we have found to a text file
-    with open('{0}_{1}.txt'.format(out_name, datetime.now().strftime('%Y%m%d_%H%M%S')), 'a+') as f:
+    file_path = os.path.join(out_dir, '{0}_{1}.txt'.format(out_name, datetime.now().strftime('%Y%m%d_%H%M%S')))
+    with open(file_path, 'a+') as f:
         for url in sorted(urls):
             f.write(url)
             f.write('\n')

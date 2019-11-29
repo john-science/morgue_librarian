@@ -117,8 +117,6 @@ def parse_one_morgue(txt):
 
     lines = txt.split('\n')[:20]
     if len(lines) < 13:
-        print(txt)
-        print(lines)
         raise ParserError('Invalid file, not long enough')
     elif not lines[0].startswith(' Dungeon Crawl Stone Soup version '):
         raise ParserError('Invalid file, starting line not found')
