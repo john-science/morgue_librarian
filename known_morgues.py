@@ -10,7 +10,7 @@ class KnownMorgues:
     To improve the RAM footprint, we only save the hash of the URL.
     """
 
-    def __init__(self, file_prefixes, dirs='.'):
+    def __init__(self, file_prefixes=['morgue_urls'], dirs=['.']):
         self.file_prefixes = file_prefixes
         self.dirs = dirs
         self.paths = set()
@@ -41,15 +41,16 @@ class KnownMorgues:
     def add(self, urls):
         """
         """
-        if type(urls) == str:
-            # oops, only passed one URL
-            self.paths.add(hash(urls))
-        else:
-            # the intended case, where a collection of URLs are passed
-            for url in urls:
-                self.paths.add(hash(url))
+        # the intended case, where a collection of URLs are passed
+        for url in urls:
+            self.paths.add(hash(url.strip()))
 
     def includes(self, url):
         """
         """
         return hash(url) in self.paths
+
+    def reset(self):
+        """
+        """
+        self.paths = set()

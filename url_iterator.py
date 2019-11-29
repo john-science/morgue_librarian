@@ -18,7 +18,7 @@ class URLIterator:
             if base_url not in self.urls:
                 self.urls[base_url] = []
 
-            self.urls[base_url].append(url)
+            self.urls[base_url].append(url.strip())
 
         for base_url in list(self.urls.keys()):
             shuffle(self.urls[base_url])
@@ -64,7 +64,7 @@ class URLIterator:
         # FINALLY, return the next URL
         self.last_times[new_key] = datetime.now().timestamp()
         self.last_base_url = new_key
-        return self.urls[new_key].pop()
+        return self.urls[new_key].pop().strip()
 
 
 if __name__ == '__main__':

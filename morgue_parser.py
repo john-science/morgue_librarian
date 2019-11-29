@@ -15,8 +15,11 @@ what percentage of games do players win?
 """
 from datetime import datetime
 from bz2 import BZ2File
+from random import choice
 import requests
 from sys import argv
+from known_morgues import KnownMorgues
+from url_iterator import URLIterator
 
 # CONSTANTS (PROBABLY TO BE MOVED TO CLASS VARIABLES)
 LOSERS = 'losers_'
@@ -43,28 +46,36 @@ def main():
     lf = '{0}{1}.txt'.format(LOSERS, dt_now)
     ef = '{0}{1}.txt'.format(PARSER_ERRORS, dt_now)
 
+    # what URLs have we already seen?
+    known_morgues = KnownMorgues(['winners', 'losers', 'parser_errors'])
+    known_morgues.find()
+
     # loop through each morgue file/URL and parse it, save the results to files
     url_iter = URLIterator(urls)
-    for url in urls:
-        # TODO: make sure we haven't already parsed this morgue
-
-        # parse the text file or HTML link
-        if url.startswith('http'):
-            txt = read_url(url)
-        else:
-            txt = read_file(url)
+    for url in url_iter:
+        print(url)
+        # make sure we haven't already parsed this morgue
+        if known_morgues.includes(url):
+            continue
+        elif count > CUT_OFF:
+            break
 
         # parse the file and write any results to output files
         try:
-            spec, back, god, runes, ver = parse_one_morgue(txt)
-            open(wf, 'a+').write('{0}\t{1}{2}^{3},{4},{5}\n'.format(url, spec, back, god, runes, ver))
-        except Loser:
-            open(lf, 'a+').write('{0}\n'.format(url))
-        except ParserError as e:
-            open(ef, 'a+').write('{0}\tParserError{1}\n'.format(url, e.replace('\n', '    ')))
-        except Exception as e:
-            open(ef, 'a+').write('{0}\tUnknownError{1}\n'.format(url, e.replace('\n', '    ')))
+            # parse the text file or HTML link
+            if url.startswith('http'):
+                txt = read_url(url)
+            else:
+                txt = read_file(url)
 
+            spec, back, god, runes, ver = parse_one_morgue(txt)
+            open(wf, 'a+').write('{0}  {1}{2}^{3},{4},{5}\n'.format(url.strip(), spec, back, god, runes, ver))
+        except Loser:
+            open(lf, 'a+').write('{0}\n'.format(url.strip()))
+        except ParserError as e:
+            open(ef, 'a+').write('{0}  ParserError{1}\n'.format(url.strip(), str(e).replace('\n', '    ')))
+        except Exception as e:
+            open(ef, 'a+').write('{0}  UnknownError{1}\n'.format(url.strip(), str(e).replace('\n', '    ')))
 
 def read_url(url):
     """ Read the text from a URL
@@ -74,9 +85,13 @@ def read_url(url):
     Returns:
         str: content of the URL
     """
-    r = requests.get(url)
-    return r.content.decode("utf-8")
+    user_agents = ['Mozilla/5.0 (Windows; U; Windows NT 6.1; ru; rv:1.9.2.3) Gecko/20100401 Firefox/4.0 (.NET CLR 3.5.30729)',
+        'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
+        'Custom']
 
+    r = requests.get(url.strip(), headers={'User-Agent': choice(user_agents)}, timeout=10)
+    return r.content.decode("utf-8")
 
 def read_file(file_path):
     """ Read the text from a file
@@ -103,6 +118,8 @@ def parse_one_morgue(txt):
 
     lines = txt.split('\n')[:20]
     if len(lines) < 13:
+        print(txt)
+        print(lines)
         raise ParserError('Invalid file, not long enough')
     elif not lines[0].startswith(' Dungeon Crawl Stone Soup version '):
         raise ParserError('Invalid file, starting line not found')

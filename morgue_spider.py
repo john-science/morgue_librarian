@@ -21,6 +21,7 @@ from datetime import datetime
 from glob import glob
 from random import random
 from requests import get as get_url
+from known_morgues import KnownMorgues
 from url_iterator import URLIterator
 
 # CONSTANTS
@@ -139,19 +140,9 @@ def write_morgue_urls_to_file(all_urls, out_name='morgue_urls'):
     urls = find_morgues(all_urls)
 
     # if we have run this script before, we will already have files saved with morgue addresses
-    known_morgues = set()
+    known_morgues = KnownMorgues([out_name])
 
-    # read any old outputs that are in plain txt format
-    old_morgue_files = glob(out_name + '*.txt')
-    for old_file in old_morgue_files:
-        known_morgues.update([f.strip() for f in open(old_file, 'r').readlines()])
-
-    # read any old outputs that are in bzip2 format
-    old_morgue_files = glob(out_name + '*.txt.bz2')
-    for old_file in old_morgue_files:
-        known_morgues.update([f.strip() for f in BZ2File(old_file, 'r').readlines()])
-
-    urls = [u for u in urls if u not in known_morgues]
+    urls = [u for u in urls if not known_morgues.includes(u)]
 
     if not len(urls):
         print("\n\tFound no new morgues.")
