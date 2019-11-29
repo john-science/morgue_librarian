@@ -26,6 +26,7 @@ LOSERS = 'losers_'
 MORGUE_LIST = 'morgue_urls_'
 PARSER_ERRORS = 'parser_errors_'
 WINNERS = 'winners_'
+DATA_DIR = 'data'
 DT_FMT = '%Y%m%d_%H%M%S'
 
 
@@ -35,19 +36,19 @@ def main():
     urls = []
     for master_file in argv[1:]:
         if master_file.endswith('.bz2'):
-            binary_urls = bz2.BZ2File(master_file, 'r').readlines()
+            binary_urls = BZ2File(master_file, 'r').readlines()
             urls += [u.decode('utf-8') for u in binary_urls]
         else:
             urls += open(master_file, 'r').readlines()
 
     # init new output files
     dt_now = current_datetime_string()
-    wf = '{0}{1}.txt'.format(WINNERS, dt_now)
-    lf = '{0}{1}.txt'.format(LOSERS, dt_now)
-    ef = '{0}{1}.txt'.format(PARSER_ERRORS, dt_now)
+    wf = os.path.join(DATA_DIR, '{0}{1}.txt'.format(WINNERS, dt_now))
+    lf = os.path.join(DATA_DIR, '{0}{1}.txt'.format(LOSERS, dt_now))
+    ef = os.path.join(DATA_DIR, '{0}{1}.txt'.format(PARSER_ERRORS, dt_now))
 
     # what URLs have we already seen?
-    known_morgues = KnownMorgues(['winners', 'losers', 'parser_errors'])
+    known_morgues = KnownMorgues([WINNERS, LOSERS, PARSER_ERRORS], DATA_DIR)
     known_morgues.find()
 
     # loop through each morgue file/URL and parse it, save the results to files
@@ -57,8 +58,6 @@ def main():
         # make sure we haven't already parsed this morgue
         if known_morgues.includes(url):
             continue
-        elif count > CUT_OFF:
-            break
 
         # parse the file and write any results to output files
         try:
@@ -101,7 +100,7 @@ def read_file(file_path):
     Returns:
         str: content of the file
     """
-    return open(file_path, 'r').read()
+    return open(file_path.strip(), 'r').read()
 
 
 def parse_one_morgue(txt):

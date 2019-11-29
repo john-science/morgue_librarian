@@ -33,6 +33,7 @@ URLS = ['http://crawl.akrasiac.org/scoring/per-day.html',
         'https://crawl.kelbi.org/scoring/highscores.html']
 
 
+# TODO: We need to support reading from/writing to a configurable directory
 def main():
     urls = set(URLS)
     out_name = str(OUT_NAME)

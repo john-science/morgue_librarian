@@ -10,7 +10,7 @@ class KnownMorgues:
     To improve the RAM footprint, we only save the hash of the URL.
     """
 
-    def __init__(self, file_prefixes=['morgue_urls'], dirs=['.']):
+    def __init__(self, file_prefixes=['morgue_urls'], dirs=['data']):
         self.file_prefixes = file_prefixes
         self.dirs = dirs
         self.paths = set()
