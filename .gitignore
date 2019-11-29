@@ -1,7 +1,10 @@
 # skip all data files
 *.bz2
-data/
+losers_*.txt
 morgue_urls_*
+parser_error*.txt
+winners_*.txt
+data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
