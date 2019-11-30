@@ -20,210 +20,211 @@ from random import choice
 import requests
 from sys import argv
 from crawl_data import *
+from custom_errors import Loser, ParserError
 from known_morgues import KnownMorgues
 from url_iterator import URLIterator
 
-# CONSTANTS (PROBABLY TO BE MOVED TO CLASS VARIABLES)
-LOSERS = 'losers_'
-MORGUE_LIST = 'morgue_urls_'
-PARSER_ERRORS = 'parser_errors_'
-WINNERS = 'winners_'
-DATA_DIR = 'data'
-DT_FMT = '%Y%m%d_%H%M%S'
 
-
-# TODO: Add commandline parsing
-# TODO: create a callable non-main function
 def main():
-    morgue_parser(argv[1:])
+    master_files = argv[1:]
+
+    p = Parser(master_files)
+    p.parse()
 
 
-def morgue_parser(master_files):
-    """
-    """
-    # the user will pass in some file filled with links / paths to morgues
-    urls = []
-    for master_file in master_files:
-        if master_file.endswith('.bz2'):
-            binary_urls = BZ2File(master_file, 'r').readlines()
-            urls += [u.decode('utf-8') for u in binary_urls]
-        else:
-            urls += open(master_file, 'r').readlines()
+class Parser:
 
-    # init new output files
-    dt_now = current_datetime_string()
-    wf = os.path.join(DATA_DIR, '{0}{1}.txt'.format(WINNERS, dt_now))
-    lf = os.path.join(DATA_DIR, '{0}{1}.txt'.format(LOSERS, dt_now))
-    ef = os.path.join(DATA_DIR, '{0}{1}.txt'.format(PARSER_ERRORS, dt_now))
+    LOSERS = 'losers_'
+    MORGUE_LIST = 'morgue_urls_'
+    PARSER_ERRORS = 'parser_errors_'
+    WINNERS = 'winners_'
+    DATA_DIR = 'data'
+    DT_FMT = '%Y%m%d_%H%M%S'
 
-    # what URLs have we already seen?
-    known_morgues = KnownMorgues([WINNERS, LOSERS, PARSER_ERRORS], DATA_DIR)
-    known_morgues.find()
+    def __init__(self, master_files):
+        self.master_files = master_files
+        self.losers = LOSERS
+        self.morgue_list = MORGUE_LIST
+        self.parser_errors = PARSER_ERRORS
+        self.winners = WINNERS
+        self.data_dir = DATA_DIR
+        self.dt_fmt = DT_FMT
 
-    # loop through each morgue file/URL and parse it, save the results to files
-    url_iter = URLIterator(urls)
-    for url in url_iter:
-        print(url)
-        # make sure we haven't already parsed this morgue
-        if known_morgues.includes(url):
-            continue
+    def parse(self):
+        """
 
-        # parse the file and write any results to output files
-        try:
-            # parse the text file or HTML link
-            if url.startswith('http'):
-                txt = read_url(url)
+        Returns: None
+        """
+        # the user will pass in some file filled with links / paths to morgues
+        urls = []
+        for master_file in self.master_files:
+            if master_file.endswith('.bz2'):
+                binary_urls = BZ2File(master_file, 'r').readlines()
+                urls += [u.decode('utf-8') for u in binary_urls]
             else:
-                txt = read_file(url)
+                urls += open(master_file, 'r').readlines()
 
-            spec, back, god, runes, ver = parse_one_morgue(txt)
-            open(wf, 'a+').write('{0}  {1}{2}^{3},{4},{5}\n'.format(url.strip(), spec, back, god, runes, ver))
-        except Loser:
-            open(lf, 'a+').write('{0}\n'.format(url.strip()))
-        except ParserError as e:
-            open(ef, 'a+').write('{0}  ParserError{1}\n'.format(url.strip(), str(e).replace('\n', '    ')))
-        except Exception as e:
-            open(ef, 'a+').write('{0}  UnknownError{1}\n'.format(url.strip(), str(e).replace('\n', '    ')))
+        # init new output files
+        dt_now = self.current_datetime_string()
+        wf = os.path.join(self.data_dir, '{0}{1}.txt'.format(self.winners, dt_now))
+        lf = os.path.join(self.data_dir, '{0}{1}.txt'.format(self.losers, dt_now))
+        ef = os.path.join(self.data_dir, '{0}{1}.txt'.format(self.parser_errors, dt_now))
 
-def read_url(url):
-    """ Read the text from a URL
+        # what URLs have we already seen?
+        known_morgues = KnownMorgues([self.winners, self.losers, self.parser_errors], [self.data_dir])
+        known_morgues.find()
 
-    Args:
-        url (str): HTML address for a morgue file
-    Returns:
-        str: content of the URL
-    """
-    user_agents = ['Mozilla/5.0 (Windows; U; Windows NT 6.1; ru; rv:1.9.2.3) Gecko/20100401 Firefox/4.0 (.NET CLR 3.5.30729)',
-        'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0',
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
-        'Custom']
+        # loop through each morgue file/URL and parse it, save the results to files
+        url_iter = URLIterator(urls)
+        for url in url_iter:
+            print(url)
+            # make sure we haven't already parsed this morgue
+            if known_morgues.includes(url):
+                continue
 
-    r = requests.get(url.strip(), headers={'User-Agent': choice(user_agents)}, timeout=10)
-    return r.content.decode("utf-8")
+            # parse the file and write any results to output files
+            try:
+                # parse the text file or HTML link
+                if url.startswith('http'):
+                    txt = Parser.read_url(url)
+                else:
+                    txt = Parser.read_file(url)
 
-def read_file(file_path):
-    """ Read the text from a file
+                spec, back, god, runes, ver = self.parse_one_morgue(txt)
+                open(wf, 'a+').write('{0}  {1}{2}^{3},{4},{5}\n'.format(url.strip(), spec, back, god, runes, ver))
+            except Loser:
+                open(lf, 'a+').write('{0}\n'.format(url.strip()))
+            except ParserError as e:
+                open(ef, 'a+').write('{0}  ParserError{1}\n'.format(url.strip(), str(e).replace('\n', '    ')))
+            except Exception as e:
+                open(ef, 'a+').write('{0}  UnknownError{1}\n'.format(url.strip(), str(e).replace('\n', '    ')))
 
-    Args:
-        file_path (str): path to the morgue file
-    Returns:
-        str: content of the file
-    """
-    return open(file_path.strip(), 'r').read()
+    @staticmethod
+    def read_url(url):
+        """ Read the text from a URL
 
+        Args:
+            url (str): HTML address for a morgue file
+        Returns:
+            str: content of the URL
+        """
+        r = requests.get(url.strip(), headers={'User-Agent': choice(USER_AGENTS)}, timeout=5)
+        return r.content.decode("utf-8")
 
-def parse_one_morgue(txt):
-    """ Parse the text of a single morgue file, to try and determine:
-    1. Did the player win this game?
-    2. If so, what was their character build, how many runes did they get?
+    @staticmethod
+    def read_file(file_path):
+        """ Read the text from a file
 
-    Args:
-        txt (str): full text dump of morgue file
-    Returns:
-        tuple: species, background, god, num_runes, version
-    """
-    txt = strip_html(txt)
+        Args:
+            file_path (str): path to the morgue file
+        Returns:
+            str: content of the file
+        """
+        return open(file_path.strip(), 'r').read()
 
-    lines = txt.split('\n')[:20]
-    if len(lines) < 13:
-        raise ParserError('Invalid file, not long enough')
-    elif not lines[0].startswith(' Dungeon Crawl Stone Soup version '):
-        raise ParserError('Invalid file, starting line not found')
-    elif "Escaped with the Orb" not in txt:
-        raise Loser('This is not a winning run.')
+    def parse_one_morgue(self, txt):
+        """ Parse the text of a single morgue file, to try and determine:
+        1. Did the player win this game?
+        2. If so, what was their character build, how many runes did they get?
 
-    version = lines[0].split(' version ')[1].split('-')[0].split()[0].split('.')
-    version = '.'.join([version[0], version[1]])
+        Args:
+            txt (str): full text dump of morgue file
+        Returns:
+            tuple: species, background, god, num_runes, version
+        """
+        txt = strip_html(txt)
 
-    god = ''
-    num_runes = -1
-    the_line = ''
-    for line in lines[1:]:
-        if not len(line.strip()):
-            continue
-        elif line.strip().startswith('... and '):
-            num_runes = int(line.split('... and ')[1].split(' runes')[0])
-        elif line.strip().startswith('Was ') and line.strip().endswith('.'):
-            god = line.lower().split('.')[0].split(' ')[-1]
-        elif ('the' in line) and ('(' in line) and (')' in line) and ('Turns:' in line) and ('Time:' in line):
-            the_line = line
-            break
+        lines = txt.split('\n')[:20]
+        if len(lines) < 13:
+            raise ParserError('Invalid file, not long enough')
+        elif not lines[0].startswith(' Dungeon Crawl Stone Soup version '):
+            raise ParserError('Invalid file, starting line not found')
+        elif "Escaped with the Orb" not in txt:
+            raise Loser('This is not a winning run.')
 
-    if not len(the_line) or num_runes < 0:
-        raise ParserError('Error parsing file')
+        version = lines[0].split(' version ')[1].split('-')[0].split()[0].split('.')
+        version = '.'.join([version[0], version[1]])
 
-    try:
-        build = the_line.split('(')[1].split(')')[0].lower()
-        if ' ' not in build and len(build) == 4:
-            # cover the case where builds are written as (OpEE)
-            species = build[:2]
-            background = build[2:]
+        god = ''
+        num_runes = -1
+        the_line = ''
+        for line in lines[1:]:
+            if not len(line.strip()):
+                continue
+            elif line.strip().startswith('... and '):
+                num_runes = int(line.split('... and ')[1].split(' runes')[0])
+            elif line.strip().startswith('Was ') and line.strip().endswith('.'):
+                god = line.lower().split('.')[0].split(' ')[-1]
+            elif ('the' in line) and ('(' in line) and (')' in line) and ('Turns:' in line) and ('Time:' in line):
+                the_line = line
+                break
+
+        if not len(the_line) or num_runes < 0:
+            raise ParserError('Error parsing file')
+
+        try:
+            build = the_line.split('(')[1].split(')')[0].lower()
+            if ' ' not in build and len(build) == 4:
+                # cover the case where builds are written as (OpEE)
+                species = build[:2]
+                background = build[2:]
+            else:
+                # cover the case where builds are written as (Octopode Earth Elementalist)
+                b = build.split()
+                if b[0] in SPECIES:
+                    species = SPECIES[b[0]]
+                    background = ' '.join(b[1:])
+                elif (b[0] + ' ' + b[1]) in SPECIES:
+                    species = SPECIES[b[0] + ' ' + b[1]]
+                    background = ' '.join(b[2:])
+
+            if background in BACKGROUNDS:
+                background = BACKGROUNDS[background]
+            elif background in BACKGROUNDS_ABR:
+                background = BACKGROUNDS_ABR[background]
+
+            if species in SPECIES:
+                species = SPECIES[species]
+            elif species in SPECIES_ABR:
+                species = SPECIES_ABR[species]
+
+            if god in GODS:
+                god = GODS[god]
+            elif god in GODS_ABR:
+                god = GODS_ABR[god]
+        except:
+            raise ParserError('Build info: {0}'.format(build))
+
+        if len(species) != 2 or len(background) != 2:
+            raise ParserError('Build info: {0}'.format(build))
+
+        return species, background, god, num_runes, version
+
+    @staticmethod
+    def strip_html(txt):
+        """ strip HTML from a non-raw dump, if any exists
+
+        Args:
+            txt (str): raw text of morgue file
+        Returns:
+            str: text of morgue file, with any HTML hopefully stripped out
+        """
+        if "<!DOCTYPE html>" in txt or "<html>" in txt:
+            i = txt.find(' Dungeon Crawl Stone Soup version ')
+            if i < 21:
+                return ''
+            else:
+                return txt[i:].split('</pre>')[0]
         else:
-            # cover the case where builds are written as (Octopode Earth Elementalist)
-            b = build.split()
-            if b[0] in SPECIES:
-                species = SPECIES[b[0]]
-                background = ' '.join(b[1:])
-            elif (b[0] + ' ' + b[1]) in SPECIES:
-                species = SPECIES[b[0] + ' ' + b[1]]
-                background = ' '.join(b[2:])
+            return txt
 
-        if background in BACKGROUNDS:
-            background = BACKGROUNDS[background]
-        elif background in BACKGROUNDS_ABR:
-            background = BACKGROUNDS_ABR[background]
+    def current_datetime_string(self):
+        """ Get the current datetime in a simple format useful for file names
 
-        if species in SPECIES:
-            species = SPECIES[species]
-        elif species in SPECIES_ABR:
-            species = SPECIES_ABR[species]
-
-        if god in GODS:
-            god = GODS[god]
-        elif god in GODS_ABR:
-            god = GODS_ABR[god]
-    except:
-        raise ParserError('Build info: {0}'.format(build))
-
-    if len(species) != 2 or len(background) != 2:
-        raise ParserError('Build info: {0}'.format(build))
-
-    return species, background, god, num_runes, version
-
-
-def strip_html(txt):
-    """ strip HTML from a non-raw dump, if any exists
-
-    Args:
-        txt (str): raw text of morgue file
-    Returns:
-        str: text of morgue file, with any HTML hopefully stripped out
-    """
-    if "<!DOCTYPE html>" in txt or "<html>" in txt:
-        i = txt.find(' Dungeon Crawl Stone Soup version ')
-        if i < 21:
-            return ''
-        else:
-            return txt[i:].split('</pre>')[0]
-    else:
-        return txt
-
-
-def current_datetime_string():
-    """ Get the current datetime in a simple format useful for file names
-
-    Returns:
-        str: current datetime, to the second
-    """
-    return datetime.now().strftime(DT_FMT)
-
-
-class Loser(Exception):
-    pass
-
-
-class ParserError(Exception):
-    pass
+        Returns:
+            str: current datetime, to the second
+        """
+        return datetime.now().strftime(self.dt_fmt)
 
 
 if __name__ == '__main__':
