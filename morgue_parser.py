@@ -25,9 +25,12 @@ from known_morgues import KnownMorgues
 from url_iterator import URLIterator
 
 
+# TODO: move file name to `parser.py` or `winning_parser.py`
 def main():
+    # grab file paths from command line
     master_files = argv[1:]
 
+    # run the winning game parser
     p = Parser(master_files)
     p.parse()
 

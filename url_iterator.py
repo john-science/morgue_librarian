@@ -11,7 +11,7 @@ class URLIterator:
 
     def __init__(self, url_set, wait=60.0):
         # load set of URLs into interleaving dictionary
-        self.wait = abs(wait)
+        self.wait = min(60.0, abs(wait))
         self.urls = {}
 
         for url in url_set:

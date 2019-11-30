@@ -58,6 +58,7 @@ def main():
     print('Spidered {0} URLs'.format(len(all_urls)))
 
 
+# TODO: Class this up.
 def morgue_spider(all_urls, new_urls, out_dir='data', out_name='morgue_urls', auto_save=1800, wait=60., depth=5):
     """ Spider through all the links you can find, recursively, to look for DCSS morgue files,
     write all those you find to a simple text file
