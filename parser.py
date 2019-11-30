@@ -1,4 +1,4 @@
-""" Morgue Parser
+""" Winning Morgue Parser
 
 This the major tool I use to parse through large numbers of DCSS morgue files to determine:
 
