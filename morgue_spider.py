@@ -94,10 +94,17 @@ class MorgueSpider:
         start = datetime.now().timestamp()
         newer_urls = set()
 
+        # what URLs have we already seen?
+        known_morgues = KnownMorgues([self.out_name, self.winners, self.losers, self.parser_errors], [self.data_dir])
+        known_morgues.find()
+
         url_iter = URLIterator(new_urls)
         for url in url_iter:
-            # let's not spider the whole internet
-            if not (url.endswith('.html') and self._looks_crawl_related(url)):
+            if known_morgues.includes(url):
+                # make sure we haven't already parsed this morgue
+                continue
+            elif not (url.endswith('.html') and self._looks_crawl_related(url)):
+                # let's not spider the whole internet
                 continue
 
             # look for links inside this URL
@@ -149,23 +156,17 @@ class MorgueSpider:
         all_links = soup.findAll('a')
         return set([a['href'].strip() for a in all_links])
 
-    def _write_morgue_urls_to_file(self, all_urls):
+    def _write_morgue_urls_to_file(self, urls):
         """ Write all the morgues you found to a simple text file,
         checking to make sure you haven't found it before
 
         Args:
-            all_urls (set): Lots of arbitrary morgue URLs
+            urls (set): Lots of arbitrary morgue URLs
         Returns: None
         """
-        # if we have run this script before, we will already have files saved with morgue addresses
-        known_morgues = KnownMorgues([self.out_name], [self.out_dir])
-
-        # find all the morgues we found (that are new)
-        urls = MorgueSpider.find_morgues(all_urls)
-        urls = [u for u in urls if not known_morgues.includes(u)]
-
         if not len(urls):
             print("\n\tFound no new morgues.")
+            return
         else:
             print("\n\tWriting {0} new morgues to file.".format(len(urls)))
 
