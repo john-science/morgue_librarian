@@ -25,17 +25,16 @@ from known_morgues import KnownMorgues
 from url_iterator import URLIterator
 
 
-# TODO: move file name to `parser.py` or `winning_parser.py`
 def main():
     # grab file paths from command line
     master_files = argv[1:]
 
     # run the winning game parser
-    p = Parser(master_files)
+    p = WinningParser(master_files)
     p.parse()
 
 
-class Parser:
+class WinningParser:
 
     LOSERS = 'losers_'
     MORGUE_LIST = 'morgue_urls_'
@@ -89,9 +88,9 @@ class Parser:
             try:
                 # parse the text file or HTML link
                 if url.startswith('http'):
-                    txt = Parser.read_url(url)
+                    txt = WinningParser.read_url(url)
                 else:
-                    txt = Parser.read_file(url)
+                    txt = WinningParser.read_file(url)
 
                 spec, back, god, runes, ver = self.parse_one_morgue(txt)
                 open(wf, 'a+').write('{0}  {1}{2}^{3},{4},{5}\n'.format(url.strip(), spec, back, god, runes, ver))

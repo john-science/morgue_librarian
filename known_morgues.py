@@ -17,6 +17,8 @@ class KnownMorgues:
 
     def find(self):
         """
+
+        Returns: None
         """
         # this set of known morgues saves only the hash of the URL or file path, to save space
         self.paths = set()
@@ -27,6 +29,8 @@ class KnownMorgues:
 
     def _find(self, d, prefix):
         """
+
+        Returns: None
         """
         # read any old outputs that are in plain txt format
         old_morgue_files = glob(os.path.join(d, prefix + '*.txt'))
@@ -40,6 +44,8 @@ class KnownMorgues:
 
     def add(self, urls):
         """
+
+        Returns: None
         """
         # the intended case, where a collection of URLs are passed
         for url in urls:
@@ -47,10 +53,17 @@ class KnownMorgues:
 
     def includes(self, url):
         """
+
+        ArgsL
+            url (str): URL address
+        Returns:
+            bool: Is this URL in the our set of known addresses?
         """
         return hash(url) in self.paths
 
     def reset(self):
         """
+
+        Returns: None
         """
         self.paths = set()
