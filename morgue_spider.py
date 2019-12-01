@@ -24,6 +24,7 @@ from bs4 import BeautifulSoup
 from bz2 import BZ2File
 from datetime import datetime
 from glob import glob
+import os
 from random import random
 from requests import get as get_url
 from sys import argv
@@ -32,7 +33,8 @@ from url_iterator import URLIterator
 
 # CONSTANTS
 AUTO_SAVE_SECONDS = 60 * 30
-SEARCH_DEPTH = 3
+AUTO_SAVE_SECONDS = 180
+SEARCH_DEPTH = 2
 OUT_DIR = 'data'
 OUT_NAME = 'morgue_urls'
 STARTING_URL_FILE = 'data/starting_urls.txt'
@@ -40,27 +42,34 @@ STARTING_URL_FILE = 'data/starting_urls.txt'
 
 # TODO: Add commandline parsing
 def main():
-    starting_url_file = set(STARTING_URL_FILE)
-    out_dir = str(OUT_DIR)
+    starting_url_file = STARTING_URL_FILE
+    data_dir = str(OUT_DIR)
     out_name = str(OUT_NAME)
     auto_save = int(AUTO_SAVE_SECONDS)
     depth = int(SEARCH_DEPTH)
 
     starting_urls = [u.strip() for u in open(starting_url_file, 'r').readlines()]
 
-    ms = MorgueSpider(starting_urls, out_dir, out_name, auto_save, depth)
+    ms = MorgueSpider(starting_urls, data_dir, out_name, auto_save, depth)
     all_urls = ms.spider()
     print('Spidered {0} URLs'.format(len(all_urls)))
 
 
 class MorgueSpider:
 
-    def __init__(self, urls, out_dir='data', out_name='morgue_urls', auto_save=1800, depth=5):
+    LOSERS = 'losers_'
+    PARSER_ERRORS = 'parser_errors_'
+    WINNERS = 'winners_'
+
+    def __init__(self, urls, data_dir='data', out_name='morgue_urls', auto_save=1800, depth=5):
         self.urls = urls
-        self.out_dir = out_dir
+        self.data_dir = data_dir
         self.out_name = out_name
         self.auto_save = float(auto_save)
         self.depth = int(depth)
+        self.losers = MorgueSpider.LOSERS
+        self.parser_errors = MorgueSpider.PARSER_ERRORS
+        self.winners = MorgueSpider.WINNERS
 
     def spider(self):
         """ Spider through all the links you can find, recursively, to look for DCSS morgue files,
@@ -171,7 +180,7 @@ class MorgueSpider:
             print("\n\tWriting {0} new morgues to file.".format(len(urls)))
 
         # write all the new and unique morgues we have found to a text file
-        file_path = os.path.join(out_dir, '{0}_{1}.txt'.format(self.out_name, datetime.now().strftime('%Y%m%d_%H%M%S')))
+        file_path = os.path.join(self.data_dir, '{0}_{1}.txt'.format(self.out_name, datetime.now().strftime('%Y%m%d_%H%M%S')))
         with open(file_path, 'a+') as f:
             for url in sorted(urls):
                 f.write(url)
