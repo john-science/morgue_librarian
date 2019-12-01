@@ -28,7 +28,12 @@ class KnownMorgues:
                 self._find(d, prefix)
 
     def _find(self, d, prefix):
-        """
+        """ All the files MorgueLibrarian creates start with a URL and then they might have whitespace
+        followed by further information. This allows us to easily parse all the various types of
+        output files the same, by simply grabbing the first column of whitespace-separated data.
+
+        Here we parse one directory and one file prefix to find all the URLs that match that those
+        file names and grab all the URLs from those files and add them to our hashed set.
 
         Args:
             d (str): directory path to find files
@@ -46,7 +51,7 @@ class KnownMorgues:
             self.paths.update([hash(f.strip().split()[0]) for f in BZ2File(old_file, 'r').readlines()])
 
     def add(self, urls):
-        """
+        """ Helper method to add some collection of URLs to our hashed set.
 
         Args:
             urls (iterable): iterable collection URLs as strings
@@ -57,7 +62,7 @@ class KnownMorgues:
             self.paths.add(hash(url.strip()))
 
     def includes(self, url):
-        """
+        """ Helper method to test if a URL is included in our hashed set.
 
         Args:
             url (str): URL address
@@ -67,7 +72,7 @@ class KnownMorgues:
         return hash(url) in self.paths
 
     def reset(self):
-        """
+        """ Helper method to nuke all the URLs in our hashed set.
 
         Returns: None
         """

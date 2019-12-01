@@ -35,6 +35,9 @@ def main():
 
 
 class WinningParser:
+    """ A helpful parser that can read DCSS morgue files, determine if it represents a winning game and
+    save the basic character information if so.
+    """
 
     LOSERS = 'losers_'
     MORGUE_LIST = 'morgue_urls_'
@@ -96,10 +99,12 @@ class WinningParser:
                 open(wf, 'a+').write('{0}  {1}{2}^{3},{4},{5}\n'.format(url.strip(), spec, back, god, runes, ver))
             except Loser:
                 open(lf, 'a+').write('{0}\n'.format(url.strip()))
-            except ParserError as e:
-                open(ef, 'a+').write('{0}  ParserError{1}\n'.format(url.strip(), str(e).replace('\n', '    ')))
             except Exception as e:
-                open(ef, 'a+').write('{0}  UnknownError{1}\n'.format(url.strip(), str(e).replace('\n', '    ')))
+                err = str(e).replace('\n', '    ')
+                err_type = 'ConnectionError' if 'connection' in err.lower() else 'UnknownError'
+                if 'ParserError' in err:
+                    err_type = 'ParserError'
+                open(ef, 'a+').write('{0}  {1}{2}\n'.format(url.strip(), err_type, err))
 
     @staticmethod
     def read_url(url):
