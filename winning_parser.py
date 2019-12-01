@@ -48,12 +48,12 @@ class WinningParser:
 
     def __init__(self, master_files):
         self.master_files = master_files
-        self.losers = LOSERS
-        self.morgue_list = MORGUE_LIST
-        self.parser_errors = PARSER_ERRORS
-        self.winners = WINNERS
-        self.data_dir = DATA_DIR
-        self.dt_fmt = DT_FMT
+        self.losers = WinningParser.LOSERS
+        self.morgue_list = WinningParser.MORGUE_LIST
+        self.parser_errors = WinningParser.PARSER_ERRORS
+        self.winners = WinningParser.WINNERS
+        self.data_dir = WinningParser.DATA_DIR
+        self.dt_fmt = WinningParser.DT_FMT
 
     def parse(self):
         """
@@ -139,7 +139,7 @@ class WinningParser:
         Returns:
             tuple: species, background, god, num_runes, version
         """
-        txt = strip_html(txt)
+        txt = WinningParser.strip_html(txt)
 
         lines = txt.split('\n')[:20]
         if len(lines) < 13:
