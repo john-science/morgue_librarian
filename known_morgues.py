@@ -16,7 +16,7 @@ class KnownMorgues:
         self.paths = set()
 
     def find(self):
-        """
+        """ Master method to populate the known morgues collection
 
         Returns: None
         """
@@ -30,21 +30,26 @@ class KnownMorgues:
     def _find(self, d, prefix):
         """
 
+        Args:
+            d (str): directory path to find files
+            prefix (str): file prefix to look for
         Returns: None
         """
         # read any old outputs that are in plain txt format
         old_morgue_files = glob(os.path.join(d, prefix + '*.txt'))
         for old_file in old_morgue_files:
-            self.paths.update([hash(f.strip()) for f in open(old_file, 'r').readlines()])
+            self.paths.update([hash(f.strip().split()[0]) for f in open(old_file, 'r').readlines()])
 
         # read any old outputs that are in bzip2 format
         old_morgue_files = glob(os.path.join(d, prefix + '*.txt.bz2'))
         for old_file in old_morgue_files:
-            self.paths.update([hash(f.strip()) for f in BZ2File(old_file, 'r').readlines()])
+            self.paths.update([hash(f.strip().split()[0]) for f in BZ2File(old_file, 'r').readlines()])
 
     def add(self, urls):
         """
 
+        Args:
+            urls (iterable): iterable collection URLs as strings
         Returns: None
         """
         # the intended case, where a collection of URLs are passed
@@ -54,7 +59,7 @@ class KnownMorgues:
     def includes(self, url):
         """
 
-        ArgsL
+        Args:
             url (str): URL address
         Returns:
             bool: Is this URL in the our set of known addresses?

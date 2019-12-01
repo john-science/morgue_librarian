@@ -79,12 +79,12 @@ class WinningParser:
         # loop through each morgue file/URL and parse it, save the results to files
         url_iter = URLIterator(urls)
         for url in url_iter:
-            print(url)
             # make sure we haven't already parsed this morgue
             if known_morgues.includes(url):
                 continue
 
             # parse the file and write any results to output files
+            print('.', end='', flush=True)
             try:
                 # parse the text file or HTML link
                 if url.startswith('http'):
