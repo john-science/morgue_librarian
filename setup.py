@@ -11,7 +11,7 @@ setup(
     name = "MorgueLibrarian",
     version = "0.1.0",
     author = "John Stilley",
-    description = "Simple tools for parse DCSS morgue files.",
+    description = "Tools for parsing DCSS morgue files.",
     license = "GPLv3",
     url = "https://github.com/theJollySin/morgue_librarian",
     long_description=readme,
@@ -32,3 +32,4 @@ setup(
         "Natural Language :: English"
     ],
 )
+
