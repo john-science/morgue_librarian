@@ -28,48 +28,41 @@ import os
 from random import random
 from requests import get as get_url
 from sys import argv
+from library_data import *
 from known_morgues import KnownMorgues
 from url_iterator import URLIterator
 
 # CONSTANTS
-AUTO_SAVE_SECONDS = 60 * 30
-AUTO_SAVE_SECONDS = 180
-SEARCH_DEPTH = 2
-OUT_DIR = 'data'
-OUT_NAME = 'morgue_urls'
+AUTO_SAVE_SECONDS = 30 * 60
+SEARCH_DEPTH = 3
 STARTING_URL_FILE = 'data/starting_urls.txt'
 
 
 # TODO: Add commandline parsing
 def main():
-    starting_url_file = STARTING_URL_FILE
-    data_dir = str(OUT_DIR)
-    out_name = str(OUT_NAME)
     auto_save = int(AUTO_SAVE_SECONDS)
     depth = int(SEARCH_DEPTH)
 
+    starting_url_file = STARTING_URL_FILE
     starting_urls = [u.strip() for u in open(starting_url_file, 'r').readlines()]
 
-    ms = MorgueSpider(starting_urls, data_dir, out_name, auto_save, depth)
+    ms = MorgueSpider(starting_urls, auto_save, depth)
     all_urls = ms.spider()
     print('Spidered {0} URLs'.format(len(all_urls)))
 
 
 class MorgueSpider:
 
-    LOSERS = 'losers_'
-    PARSER_ERRORS = 'parser_errors_'
-    WINNERS = 'winners_'
-
-    def __init__(self, urls, data_dir='data', out_name='morgue_urls', auto_save=1800, depth=5):
+    def __init__(self, urls, auto_save=1800, depth=5):
         self.urls = urls
-        self.data_dir = data_dir
-        self.out_name = out_name
         self.auto_save = float(auto_save)
         self.depth = int(depth)
-        self.losers = MorgueSpider.LOSERS
-        self.parser_errors = MorgueSpider.PARSER_ERRORS
-        self.winners = MorgueSpider.WINNERS
+        self.data_dir = DATA_DIR
+        self.dt_fmt = DT_FMT
+        self.losers = LOSERS
+        self.morgue_urls = MORGUE_URLS
+        self.parser_errors = PARSER_ERRORS
+        self.winners = WINNERS
 
     def spider(self):
         """ Spider through all the links you can find, recursively, to look for DCSS morgue files,
@@ -103,8 +96,9 @@ class MorgueSpider:
         start = datetime.now().timestamp()
         newer_urls = set()
 
+        # TODO: This is broken. It needs to be inside the writing loop.
         # what URLs have we already seen?
-        known_morgues = KnownMorgues([self.out_name, self.winners, self.losers, self.parser_errors], [self.data_dir])
+        known_morgues = KnownMorgues([self.morgue_urls, self.winners, self.losers, self.parser_errors], [self.data_dir])
         known_morgues.find()
 
         url_iter = URLIterator(new_urls)
@@ -180,7 +174,7 @@ class MorgueSpider:
             print("\n\tWriting {0} new morgues to file.".format(len(urls)))
 
         # write all the new and unique morgues we have found to a text file
-        file_path = os.path.join(self.data_dir, '{0}_{1}.txt'.format(self.out_name, datetime.now().strftime('%Y%m%d_%H%M%S')))
+        file_path = os.path.join(self.data_dir, '{0}{1}.txt'.format(self.morgue_urls, datetime.now().strftime(self.dt_fmt)))
         with open(file_path, 'a+') as f:
             for url in sorted(urls):
                 f.write(url)

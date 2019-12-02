@@ -77,3 +77,6 @@ class KnownMorgues:
         Returns: None
         """
         self.paths = set()
+
+    def __len__(self):
+        return len(self.paths)

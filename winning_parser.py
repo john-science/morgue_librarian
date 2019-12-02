@@ -20,6 +20,7 @@ from random import choice
 import requests
 from sys import argv
 from crawl_data import *
+from library_data import *
 from custom_errors import Loser, ParserError
 from known_morgues import KnownMorgues
 from url_iterator import URLIterator
@@ -39,21 +40,13 @@ class WinningParser:
     save the basic character information if so.
     """
 
-    LOSERS = 'losers_'
-    MORGUE_LIST = 'morgue_urls_'
-    PARSER_ERRORS = 'parser_errors_'
-    WINNERS = 'winners_'
-    DATA_DIR = 'data'
-    DT_FMT = '%Y%m%d_%H%M%S'
-
     def __init__(self, master_files):
         self.master_files = master_files
-        self.losers = WinningParser.LOSERS
-        self.morgue_list = WinningParser.MORGUE_LIST
-        self.parser_errors = WinningParser.PARSER_ERRORS
-        self.winners = WinningParser.WINNERS
-        self.data_dir = WinningParser.DATA_DIR
-        self.dt_fmt = WinningParser.DT_FMT
+        self.data_dir = DATA_DIR
+        self.dt_fmt = DT_FMT
+        self.losers = LOSERS
+        self.parser_errors = PARSER_ERRORS
+        self.winners = WINNERS
 
     def parse(self):
         """
