@@ -1,5 +1,3 @@
-# TODO: Change the name of this file to "data.py"?
-
 
 # Below are the data for all valid character build types, mapped to the shorthands players use.
 SPECIES = {'barachian': 'Br', 'black draconian': 'Dr', 'centaur': 'Ce', 'deep dwarf': 'DD', 'deep elf': 'DE',
@@ -31,3 +29,4 @@ GODS = {'ashenzari': 'Ash', 'beogh': 'Beo', 'cheibriados': 'Chei', 'council': 'W
         'the shining one': 'TSO', 'the wu jian council': 'Wu', 'trog': 'Trog', 'uskayaw': 'Usk', 'vehumet': 'Veh',
         'wu': 'Wu', 'xobeh': 'Nem', 'xom': 'Xom', 'ym': 'Goz', 'yredelemnul': 'Yred', 'zin': 'Zin'}
 GODS_ABR = {g.lower(): g for g in GODS.values()}
+

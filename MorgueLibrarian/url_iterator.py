@@ -3,7 +3,7 @@ from random import choice, random, shuffle
 from time import sleep
 
 
-# TODO: We can use KnownMorgues here, to skip iterating through duplicates.
+# TODO: Can we use KnownMorgues here, to skip iterating through duplicates?
 class URLIterator:
     """ A Helpful iterator designed to loop through a set of URLs,
     with an eye towards not hitting the same URL too often
