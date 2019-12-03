@@ -5,7 +5,7 @@
      _//"\\_
       /   \
 
-I use this script to spider various DCSS websites to find morgue files.
+This script spiders DCSS websites looking for morgue files.
 
 PLEASE BE CAREFUL.
 
