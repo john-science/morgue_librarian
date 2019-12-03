@@ -40,12 +40,15 @@ STARTING_URL_FILE = 'data/starting_urls.txt'
 
 # TODO: Add commandline parsing
 def main():
+    # grab global config varaibles
     auto_save = int(AUTO_SAVE_SECONDS)
     depth = int(SEARCH_DEPTH)
-
     starting_url_file = STARTING_URL_FILE
+
+    # parse input file for starting URLS
     starting_urls = [u.strip() for u in open(starting_url_file, 'r').readlines()]
 
+    # run spider
     ms = MorgueSpider(starting_urls, auto_save, depth)
     all_urls = ms.spider()
     print('Spidered {0} URLs'.format(len(all_urls)))
@@ -53,7 +56,7 @@ def main():
 
 class MorgueSpider:
 
-    def __init__(self, urls, auto_save=1800, depth=5):
+    def __init__(self, urls, auto_save=1800, depth=3):
         self.urls = urls
         self.auto_save = float(auto_save)
         self.depth = int(depth)
@@ -96,17 +99,9 @@ class MorgueSpider:
         start = datetime.now().timestamp()
         newer_urls = set()
 
-        # TODO: This is broken. It needs to be inside the writing loop.
-        # what URLs have we already seen?
-        known_morgues = KnownMorgues([self.morgue_urls, self.winners, self.losers, self.parser_errors], [self.data_dir])
-        known_morgues.find()
-
         url_iter = URLIterator(new_urls)
         for url in url_iter:
-            if known_morgues.includes(url):
-                # make sure we haven't already parsed this morgue
-                continue
-            elif not (url.endswith('.html') and self._looks_crawl_related(url)):
+            if not (url.endswith('.html') and self._looks_crawl_related(url)):
                 # let's not spider the whole internet
                 continue
 
@@ -167,6 +162,13 @@ class MorgueSpider:
             urls (set): Lots of arbitrary morgue URLs
         Returns: None
         """
+        # What morgue files have we already seen?
+        known_morgues = KnownMorgues([self.morgue_urls, self.winners, self.losers, self.parser_errors], [self.data_dir])
+        known_morgues.find()
+
+        # Strip out known morgues.
+        urls = [u for u in urls if not known_morgues.includes(u)]
+
         if not len(urls):
             print("\n\tFound no new morgues.")
             return
