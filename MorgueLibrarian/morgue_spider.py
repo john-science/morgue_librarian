@@ -169,6 +169,9 @@ class MorgueSpider:
         # Strip out known morgues.
         urls = [u for u in urls if not known_morgues.includes(u)]
 
+        # only write valid links to file
+        urls = [u for u in urls if u.startswith('http')]
+
         if not len(urls):
             print("\n\tFound no new morgues.")
             return
