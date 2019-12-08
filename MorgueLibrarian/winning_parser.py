@@ -100,7 +100,7 @@ class WinningParser:
                 err_type = 'ConnectionError' if 'connection' in err.lower() else 'UnknownError'
                 if 'ParserError' in err:
                     err_type = 'ParserError'
-                open(ef, 'a+').write('{0}  {1}{2}\n'.format(url.strip(), err_type, err))
+                open(ef, 'a+').write('{0}  {1}: {2}\n'.format(url.strip(), err_type, err))
 
     @staticmethod
     def read_url(url):

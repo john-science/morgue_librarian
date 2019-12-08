@@ -60,8 +60,8 @@ class URLIterator:
         # Wait, if need be.
         waited = max(0, datetime.now().timestamp() - self.last_times[new_key])
         if new_key == self.last_base_url or waited < self.wait:
-            to_wait = min(self.wait, self.wait - waited)
-            sleep(to_wait + 0.2 * self.wait * random())
+            to_wait = min(self.wait, abs(self.wait - waited))
+            sleep(to_wait + 0.1 * self.wait * random())
 
         # FINALLY, return the next URL
         self.last_times[new_key] = datetime.now().timestamp()
