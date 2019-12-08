@@ -89,7 +89,10 @@ class WinningParser:
                     txt = WinningParser.read_file(url)
 
                 spec, back, god, runes, ver = self.parse_one_morgue(txt)
-                open(wf, 'a+').write('{0}  {1}{2}^{3},{4},{5}\n'.format(url.strip(), spec, back, god, runes, ver))
+                if len(god.strip()):
+                    open(wf, 'a+').write('{0}  {1}{2}^{3},{4},{5}\n'.format(url.strip(), spec, back, god, runes, ver))
+                else:
+                    open(wf, 'a+').write('{0}  {1}{2},{3},{4}\n'.format(url.strip(), spec, back, runes, ver))
             except Loser:
                 open(lf, 'a+').write('{0}\n'.format(url.strip()))
             except Exception as e:
