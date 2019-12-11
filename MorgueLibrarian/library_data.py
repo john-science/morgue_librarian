@@ -2,6 +2,7 @@
 # Constants used for file names and paths
 DATA_DIR = 'data'
 DT_FMT = '%Y%m%d_%H%M%S'
+CONNECTION_ERRORS = 'connection_errors_'
 LOSERS = 'losers_'
 MORGUE_URLS = 'morgue_urls_'
 PARSER_ERRORS = 'parser_errors_'
