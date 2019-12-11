@@ -44,7 +44,6 @@ class WinningParser:
         self.master_files = master_files
         self.data_dir = DATA_DIR
         self.dt_fmt = DT_FMT
-        self.connection_errors = CONNECTION_ERRORS
         self.losers = LOSERS
         self.parser_errors = PARSER_ERRORS
         self.winners = WINNERS
@@ -68,11 +67,9 @@ class WinningParser:
         wf = os.path.join(self.data_dir, '{0}{1}.txt'.format(self.winners, dt_now))
         lf = os.path.join(self.data_dir, '{0}{1}.txt'.format(self.losers, dt_now))
         ef = os.path.join(self.data_dir, '{0}{1}.txt'.format(self.parser_errors, dt_now))
-        cf = os.path.join(self.data_dir, '{0}{1}.txt'.format(self.connection_errors, dt_now))
 
         # what URLs have we already seen?
-        known_morgues = KnownMorgues([self.winners, self.losers, self.parser_errors, self.connection_errors],
-                                     [self.data_dir])
+        known_morgues = KnownMorgues([self.winners, self.losers, self.parser_errors], [self.data_dir])
         known_morgues.find()
 
         # loop through each morgue file/URL and parse it, save the results to files
@@ -101,7 +98,7 @@ class WinningParser:
             except Exception as e:
                 err = str(e).replace('\n', '    ')
                 if 'connection' in err.lower():
-                    open(cf, 'a+').write('{0}\n'.format(url.strip()))
+                    open(ef, 'a+').write('{0} ConnectionError\n'.format(url.strip()))
                 else:
                     err_type = 'ParserError' if 'ParserError' in err else 'UnknownError'
                     open(ef, 'a+').write('{0}  {1}: {2}\n'.format(url.strip(), err_type, err))
