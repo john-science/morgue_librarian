@@ -49,8 +49,16 @@ class WinningCatalog:
         if not len(matches):
             print('No matches found.')
         else:
+            lines = {}
             for m, u in matches.items():
-                print(u + ' ' + ','.join([str(v) for v in m]))
+                ver = m[4]
+                if ver not in lines:
+                    lines[ver] = []
+                    lines[ver].append(u + ' ' + ','.join([str(v) for v in m]))
+
+            for ver in sorted(lines.keys()):
+                for line in sorted(lines[ver]):
+                    print(line)
 
     def find(self):
         """ TODO
