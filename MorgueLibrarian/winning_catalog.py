@@ -1,4 +1,6 @@
+import os
 from sys import argv
+from library_data import DATA_DIR, WINNERS
 
 
 def main():
@@ -12,9 +14,29 @@ def main():
       d) range operators from Python syntax: < > <= >= !=
         i) perhaps we can use eval() here, to build lambdas?
     """
-    pass
+    data_dir = DATA_DIR
+    winners = WINNERS
+    args = ['*', '*', '*', '*', '*']
+
+    for a, arg in enumerate(argv[1:]):
+        args[a - 1] = arg
+
+    wc = WinningCatalog(data_dir, winners)
+    wc.print_matches(args[0], args[1], args[2], args[3], args[4])
+
+
+class WinningCatalog:
+
+    def __init__(self, data_dir, winners):
+        self.data_dir = data_dir
+        self.winners = winners
+        self.morgues = {}
+
+    def print_matches(self, species, background, god, num_runes, ver):
+        """
+        """
+        pass
 
 
 if __name__ == '__main__':
     main()
-
