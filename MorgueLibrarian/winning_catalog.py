@@ -35,6 +35,7 @@ class WinningCatalog:
 
         matches = self.morgues.copy()
 
+        # TODO: asterisk doesn't parse well as a POSIX commandline term. Try "-", "@", "any", "all", or something.
         if species != '*':
             matches = {m:u for m, u in matches.items() if m[0] == species}
         if background != '*':
@@ -49,16 +50,10 @@ class WinningCatalog:
         if not len(matches):
             print('No matches found.')
         else:
-            lines = {}
-            for m, u in matches.items():
-                ver = m[4]
-                if ver not in lines:
-                    lines[ver] = []
-                    lines[ver].append(u + ' ' + ','.join([str(v) for v in m]))
-
-            for ver in sorted(lines.keys()):
-                for line in sorted(lines[ver]):
-                    print(line)
+            for build in sorted(matches.keys()):
+                b = build[0] + build[1] + '^' + build[2] + str(build[3]).rjust(3) + ' ' + str(build[4]).ljust(5) + '  '
+                for line in sorted(matches[build]):
+                    print(b + line)
 
     def find(self):
         """ TODO
@@ -73,16 +68,20 @@ class WinningCatalog:
         for old_file in old_morgue_files:
             with open(old_file, 'r') as f:
                 for line in f.readlines():
-                    url, species, background, god, num_runes, ver = WinningCatalog.read_winning_line(line)
-                    self.morgues[(species, background, god, num_runes, ver)] = url
+                    url, build = WinningCatalog.read_winning_line(line)
+                    if build not in self.morgues:
+                        self.morgues[build]= []
+                    self.morgues[build].append(url)
 
         # read any old outputs that are in bzip2 format
         old_morgue_files = glob(os.path.join(self.data_dir, self.prefix + '*.txt.bz2'))
         for old_file in old_morgue_files:
             with BZ2File(old_file, 'r') as f:
                 for line in f.readlines():
-                    url, species, background, god, num_runes, ver = WinningCatalog.read_winning_line(line)
-                    self.morgues[(species, background, god, num_runes, ver)] = url
+                    url, build = WinningCatalog.read_winning_line(line)
+                    if build not in self.morgues:
+                        self.morgues[build]= []
+                    self.morgues[build].append(url)
 
     @staticmethod
     def read_winning_line(line):
@@ -99,7 +98,7 @@ class WinningCatalog:
         background = sb[2:]
         num_runes = int(num_runes)
         ver = float(ver)
-        return url, species, background, god, num_runes, ver
+        return url, (species, background, god, num_runes, ver)
 
 
 if __name__ == '__main__':
