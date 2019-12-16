@@ -51,7 +51,7 @@ class WinningCatalog:
             print('No matches found.')
         else:
             for build in sorted(matches.keys()):
-                b = build[0] + build[1] + '^' + build[2] + str(build[3]).rjust(3) + ' ' + str(build[4]).ljust(5) + '  '
+                b = build[0] + build[1] + '^' + build[2].ljust(4) + str(build[3]).rjust(3) + ' ' + str(build[4]).ljust(5) + '  '
                 for line in sorted(matches[build]):
                     print(b + line)
 
