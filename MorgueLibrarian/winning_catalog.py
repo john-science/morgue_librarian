@@ -12,7 +12,7 @@ def main():
     """
     data_dir = DATA_DIR
     winners = WINNERS
-    args = ['*', '*', '*', '*', '*']
+    args = ['-', '-', '-', '-', '-']
 
     for a, arg in enumerate(argv[1:]):
         args[a] = arg
@@ -35,16 +35,16 @@ class WinningCatalog:
 
         matches = self.morgues.copy()
 
-        # TODO: asterisk doesn't parse well as a POSIX commandline term. Try "-", "@", "any", "all", or something.
-        if species != '*':
+        # subset the morgues to match our search criteria
+        if species != '-':
             matches = {m:u for m, u in matches.items() if m[0] == species}
-        if background != '*':
+        if background != '-':
             matches = {m:u for m, u in matches.items() if m[1] == background}
-        if god != '*':
+        if god != '-':
             matches = {m:u for m, u in matches.items() if m[2] == god}
-        if num_runes != '*':
+        if num_runes != '-':
             matches = {m:u for m, u in matches.items() if m[3] == int(num_runes)}
-        if ver != '*':
+        if ver != '-':
             matches = {m:u for m, u in matches.items() if m[4] == float(ver)}
 
         if not len(matches):
