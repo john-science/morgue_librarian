@@ -1,3 +1,5 @@
+""" Winning Morgue Cataloger
+"""
 from glob import glob
 import os
 from sys import argv

@@ -1,6 +1,7 @@
 ''' MorgueLibrarian
 
 Install by building locally with:
+
 python setup.py install
 '''
 from setuptools import setup
