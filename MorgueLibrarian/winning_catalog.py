@@ -52,10 +52,29 @@ class WinningCatalog:
         if not len(matches):
             print('No matches found.')
         else:
+            # print all the winning morgues that matches the search criteria
             for build in sorted(matches.keys()):
                 b = build[0] + build[1] + '^' + build[2].ljust(4) + str(build[3]).rjust(3) + ' ' + str(build[4]).ljust(5) + '  '
                 for line in sorted(matches[build]):
                     print(b + line)
+
+            # TODO: Should be optional
+            return
+
+            # print some summary statistics, for the most popular builds that match the search criteria
+            build_counts = {}
+            for b, us in matches.items():
+                build = b[0] + b[1] + '^' + b[2]
+                cnt = len(us)
+                if build not in build_counts:
+                    build_counts[build] = 0
+                build_counts[build] += cnt
+
+            max_count = max(build_counts.values())
+            print('\nMost popular builds:')
+            for build, count in build_counts.items():
+                if count >= max_count:
+                    print(build)
 
     def find(self):
         """ TODO
