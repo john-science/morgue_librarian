@@ -25,6 +25,7 @@ from custom_errors import Loser, ParserError
 from known_morgues import KnownMorgues
 from url_iterator import URLIterator
 
+# TODO: Add the optional to download and save (bzip) all morgues you find (or just winning morgues).
 
 
 def main():
