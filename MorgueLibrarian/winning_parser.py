@@ -88,6 +88,7 @@ class WinningParser:
                 if url.startswith('http'):
                     txt = WinningParser.read_url(url)
                 else:
+                    # TODO: Need option to parse .bzip2 files.
                     txt = WinningParser.read_file(url)
 
                 spec, back, god, runes, ver = self.parse_one_morgue(txt)
