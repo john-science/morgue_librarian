@@ -15,19 +15,24 @@ def main():
     data_dir = DATA_DIR
     winners = WINNERS
     args = ['-', '-', '-', '-', '-']
+    print_stats = False
 
     for a, arg in enumerate(argv[1:]):
-        args[a] = arg
+        if arg in ('-s', '--stats'):
+            print_stats = True
+        else:
+            args[a] = arg
 
-    wc = WinningCatalog(data_dir, winners)
+    wc = WinningCatalog(data_dir, winners, print_stats)
     wc.print_matches(args[0], args[1], args[2], args[3], args[4])
 
 
 class WinningCatalog:
 
-    def __init__(self, data_dir, prefix):
+    def __init__(self, data_dir, prefix, print_stats=False):
         self.data_dir = data_dir
         self.prefix = prefix
+        self.print_stats = print_stats
         self.morgues = {}
 
     def print_matches(self, species, background, god, num_runes, ver):
@@ -58,10 +63,11 @@ class WinningCatalog:
                 for line in sorted(matches[build]):
                     print(b + line)
 
-            # TODO: Should be optional
-            return
-
             # print some summary statistics, for the most popular builds that match the search criteria
+            if not self.print_stats:
+                return
+
+            # calc optional stats
             build_counts = {}
             for b, us in matches.items():
                 build = b[0] + b[1] + '^' + b[2]
@@ -70,6 +76,7 @@ class WinningCatalog:
                     build_counts[build] = 0
                 build_counts[build] += cnt
 
+            # print optional stats
             max_count = max(build_counts.values())
             print('\nMost popular builds:')
             for build, count in build_counts.items():

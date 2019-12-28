@@ -26,6 +26,7 @@ from known_morgues import KnownMorgues
 from url_iterator import URLIterator
 
 
+
 def main():
     # grab file paths from command line
     master_files = argv[1:]
@@ -49,7 +50,7 @@ class WinningParser:
         self.winners = WINNERS
 
     def parse(self):
-        """
+        """ TODO
 
         Returns: None
         """
