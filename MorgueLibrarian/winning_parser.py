@@ -26,6 +26,7 @@ from known_morgues import KnownMorgues
 from url_iterator import URLIterator
 
 # TODO: Add the optional to download and save (bzip) all morgues you find (or just winning morgues).
+#       Output file name will be URL, minus https://, with "_" inplace of "/"
 
 
 def main():
@@ -87,15 +88,14 @@ class WinningParser:
                 # parse the text file or HTML link
                 if url.startswith('http'):
                     txt = WinningParser.read_url(url)
+                elif url.endswith('bz2'):
+                    txt = WinningParser.read_bzip_file(url)
                 else:
-                    # TODO: Need option to parse .bzip2 files.
-                    txt = WinningParser.read_file(url)
+                    txt = WinningParser.read_txt_file(url)
 
                 spec, back, god, runes, ver = self.parse_one_morgue(txt)
-                if len(god.strip()):
-                    open(wf, 'a+').write('{0}  {1}{2}^{3},{4},{5}\n'.format(url.strip(), spec, back, god, runes, ver))
-                else:
-                    open(wf, 'a+').write('{0}  {1}{2},{3},{4}\n'.format(url.strip(), spec, back, runes, ver))
+                god_str = '^' + god if len(god) else ''
+                open(wf, 'a+').write('{0}  {1}{2}{3},{4},{5}\n'.format(url.strip(), spec, back, god_str, runes, ver))
             except Loser:
                 open(lf, 'a+').write('{0}\n'.format(url.strip()))
             except Exception as e:
@@ -105,6 +105,28 @@ class WinningParser:
                 else:
                     err_type = 'ParserError' if 'ParserError' in err else 'UnknownError'
                     open(ef, 'a+').write('{0}  {1}: {2}\n'.format(url.strip(), err_type, err))
+
+    @staticmethod
+    def read_txt_file(file_path):
+        """ Read the text from a plain txt file
+
+        Args:
+            file_path (str): path to the morgue file
+        Returns:
+            str: content of the file
+        """
+        return open(file_path.strip(), 'r').read()
+
+    @staticmethod
+    def read_bzip_file(file_path):
+        """ Read the text from a bzip2 file
+
+        Args:
+            file_path (str): path to the morgue file
+        Returns:
+            str: content of the file
+        """
+        return BZ2File(file_path, 'r').read()
 
     @staticmethod
     def read_url(url):
@@ -117,17 +139,6 @@ class WinningParser:
         """
         r = requests.get(url.strip(), headers={'User-Agent': choice(USER_AGENTS)}, timeout=5)
         return r.content.decode("utf-8")
-
-    @staticmethod
-    def read_file(file_path):
-        """ Read the text from a file
-
-        Args:
-            file_path (str): path to the morgue file
-        Returns:
-            str: content of the file
-        """
-        return open(file_path.strip(), 'r').read()
 
     def parse_one_morgue(self, txt):
         """ Parse the text of a single morgue file, to try and determine:
