@@ -13,7 +13,7 @@ games playing similar character builds to myself.
 But a side result of this data mining is I can learn lots of other things. For instance,
 what percentage of games do players win?
 """
-from bz2 import BZ2File
+from bz2 import BZ2Compressor, BZ2File
 from datetime import datetime
 import os
 from random import choice
@@ -25,16 +25,20 @@ from custom_errors import Loser, ParserError
 from known_morgues import KnownMorgues
 from url_iterator import URLIterator
 
-# TODO: Add the optional to download and save (bzip) all morgues you find (or just winning morgues).
-#       Output file name will be URL, minus https://, with "_" inplace of "/"
-
 
 def main():
     # grab file paths from command line
-    master_files = argv[1:]
+    save_winners = False
+    master_files = argv[1:].copy()
+
+    save_flags = ('-s', '--save')
+    for s in save_flags:
+        if s in args:
+            save_winners = True
+            master_files.remove(s)
 
     # run the winning game parser
-    p = WinningParser(master_files)
+    p = WinningParser(master_files, save_winners)
     p.parse()
 
 
@@ -43,12 +47,14 @@ class WinningParser:
     save the basic character information if so.
     """
 
-    def __init__(self, master_files):
+    def __init__(self, master_files, save_winners=False):
         self.master_files = master_files
+        self.save_winners = save_winners
         self.data_dir = DATA_DIR
         self.dt_fmt = DT_FMT
         self.losers = LOSERS
         self.parser_errors = PARSER_ERRORS
+        self.saved_dir = os.path.join(self.data_dir, SAVED_DIR)
         self.winners = WINNERS
 
     def parse(self):
@@ -93,7 +99,7 @@ class WinningParser:
                 else:
                     txt = WinningParser.read_txt_file(url)
 
-                spec, back, god, runes, ver = self.parse_one_morgue(txt)
+                spec, back, god, runes, ver = self.parse_one_morgue(txt, url)
                 god_str = '^' + god if len(god) else ''
                 open(wf, 'a+').write('{0}  {1}{2}{3},{4},{5}\n'.format(url.strip(), spec, back, god_str, runes, ver))
             except Loser:
@@ -140,13 +146,14 @@ class WinningParser:
         r = requests.get(url.strip(), headers={'User-Agent': choice(USER_AGENTS)}, timeout=5)
         return r.content.decode("utf-8")
 
-    def parse_one_morgue(self, txt):
+    def parse_one_morgue(self, txt, url):
         """ Parse the text of a single morgue file, to try and determine:
         1. Did the player win this game?
         2. If so, what was their character build, how many runes did they get?
 
         Args:
             txt (str): full text dump of morgue file
+            url (str): path to the URL (or file path) for this morgue
         Returns:
             tuple: species, background, god, num_runes, version
         """
@@ -159,6 +166,9 @@ class WinningParser:
             raise ParserError('Invalid file, starting line not found')
         elif "Escaped with the Orb" not in txt:
             raise Loser('This is not a winning run.')
+
+        # optionally, save morgue to file
+        self._save_winners(txt, url)
 
         version = lines[0].split(' version ')[1].split('-')[0].split()[0].split('.')
         version = '.'.join([version[0], version[1]])
@@ -217,6 +227,22 @@ class WinningParser:
             raise ParserError('Build info: {0}'.format(build))
 
         return species, background, god, num_runes, version
+
+    def _save_winners(self, txt, url):
+        """ optionally, save the winning morgue to a BZIP2 file
+
+        Args:
+            txt (str): full text dump of morgue file
+            url (str): path to the URL (or file path) for this morgue
+        Returns: None
+        """
+        if self.save_winners and url.starts('http'):
+            file_path = url.replace('https://', '').replace('http://', '').replace('/', '_')
+            file_path = os.path.join(self.saved_dir, file_path + '.bz2')
+            compressor = BZ2Compressor()
+            f = bz2.open(file_path, "wb")
+            f.write(compressor.compress(txt))
+            f.close()
 
     @staticmethod
     def strip_html(txt):
