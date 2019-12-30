@@ -36,7 +36,16 @@ class WinningCatalog:
         self.morgues = {}
 
     def print_matches(self, species, background, god, num_runes, ver):
-        """ TODO
+        """ Print any morgues that match the winning character build info provided
+        (Defaults are given by "-".)
+
+        Args:
+            species (str): species of winning character
+            background (str): background of winning character
+            god (str): final diety for the of winning character
+            num_runes (int): number of runes player had by end
+            version (float): major game version of the
+        Returns: None
         """
         self.find()
 
@@ -84,7 +93,7 @@ class WinningCatalog:
                     print(build)
 
     def find(self):
-        """ TODO
+        """ read all the lines from any winning morgue files that you have lying around
 
         Returns: None
         """
@@ -113,7 +122,12 @@ class WinningCatalog:
 
     @staticmethod
     def read_winning_line(line):
-        """ TODO
+        """ read a custom winning game descrption line
+
+        Args:
+            line (str): custom winning morgue line
+        Returns:
+            tuple: (url, (species, background, god, num_runes, ver))
         """
         url, info = line.strip().split()
         sbg, num_runes, ver = info.split(',')
