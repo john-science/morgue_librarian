@@ -38,12 +38,25 @@ SEARCH_DEPTH = 3
 STARTING_URL_FILE = 'data/starting_urls.txt'
 
 
-# TODO: Add commandline parsing
 def main():
     # grab global config varaibles
     auto_save = int(AUTO_SAVE_SECONDS)
     depth = int(SEARCH_DEPTH)
     starting_url_file = STARTING_URL_FILE
+
+    # optional commandline parsing
+    a = 1
+    while a < len(argv):
+        if argv[a].lower() in ('-a', '--auto_save_second'):
+            a += 1
+            auto_save = int(argv[a])
+        elif argv[a].lower() in ('-d', '--depth'):
+            a += 1
+            depth = int(argv[a])
+        elif argv[a].lower() in ('-u', '--url_file'):
+            a += 1
+            starting_url_file = argv[a]
+        a += 1
 
     # parse input file for starting URLS
     starting_urls = [u.strip() for u in open(starting_url_file, 'r').readlines()]
