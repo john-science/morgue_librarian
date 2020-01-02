@@ -58,7 +58,8 @@ class WinningParser:
         self.winners = WINNERS
 
     def parse(self):
-        """ TODO
+        """ master method to take in a lot of links to Morgue files and parse the,
+        looking for winning morgues.
 
         Returns: None
         """

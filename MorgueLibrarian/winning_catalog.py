@@ -136,6 +136,7 @@ class WinningCatalog:
         else:
             sb = sbg
             god = ''
+
         species = sb[:2]
         background = sb[2:]
         num_runes = int(num_runes)
