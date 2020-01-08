@@ -100,6 +100,7 @@ class WinningParser:
                 else:
                     txt = WinningParser.read_txt_file(url)
 
+                # write out the winning build and reference
                 spec, back, god, runes, ver = self.parse_one_morgue(txt, url)
                 god_str = '^' + god if len(god) else ''
                 open(wf, 'a+').write('{0}  {1}{2}{3},{4},{5}\n'.format(url.strip(), spec, back, god_str, runes, ver))
