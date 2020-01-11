@@ -87,7 +87,7 @@ class WinningCatalog:
 
             # print optional stats
             max_count = max(build_counts.values())
-            print('\nMost popular builds:')
+            print('\nMost popular build(s):')
             for build, count in build_counts.items():
                 if count >= max_count:
                     print(build)
