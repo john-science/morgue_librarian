@@ -86,11 +86,12 @@ class WinningCatalog:
                 build_counts[build] += cnt
 
             # print optional stats
-            max_count = max(build_counts.values())
+            max_count = sorted(set(build_counts.values()))[-1]
+            total_count = sum(build_counts.values())
             print('\nMost popular build(s):')
             for build, count in build_counts.items():
                 if count >= max_count:
-                    print(build)
+                    print('{0}/{1}:\t{2}'.format(count, total_count, build))
 
     def find(self):
         """ read all the lines from any winning morgue files that you have lying around
