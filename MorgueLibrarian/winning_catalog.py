@@ -90,11 +90,11 @@ class WinningCatalog:
             build_counts[build] += cnt
 
         # print optional stats
-        max_count = sorted(set(build_counts.values()))[-self.print_stats:]
+        the_cut = sorted(set(build_counts.values()))[-self.print_stats]
         total_count = sum(build_counts.values())
         print('\nMost popular build(s):')
         for build, count in build_counts.items():
-            if count >= max_count:
+            if count >= the_cut:
                 print('{0}/{1}:\t{2}'.format(count, total_count, build))
 
     def find(self):
