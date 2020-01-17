@@ -15,11 +15,14 @@ def main():
     data_dir = DATA_DIR
     winners = WINNERS
     args = ['-', '-', '-', '-', '-']
-    print_stats = False
+    print_stats = 0
 
     for a, arg in enumerate(argv[1:]):
-        if arg in ('-s', '--stats'):
-            print_stats = True
+        if arg.startswith('-s') or arg.startswith('--stats'):
+            # How many top builds do we want to print?
+            print_stats = 1
+            if ':' in arg:
+                print_stats = int(arg.split(':')[1].strip())
         else:
             args[a] = arg
 
@@ -29,7 +32,7 @@ def main():
 
 class WinningCatalog:
 
-    def __init__(self, data_dir, prefix, print_stats=False):
+    def __init__(self, data_dir, prefix, print_stats=0):
         self.data_dir = data_dir
         self.prefix = prefix
         self.print_stats = print_stats
@@ -65,33 +68,34 @@ class WinningCatalog:
 
         if not len(matches):
             print('No matches found.')
-        else:
-            # print all the winning morgues that matches the search criteria
-            for build in sorted(matches.keys()):
-                b = build[0] + build[1] + '^' + build[2].ljust(4) + str(build[3]).rjust(3) + ' ' + str(build[4]).ljust(5) + '  '
-                for line in sorted(matches[build]):
-                    print(b + line)
+            return
 
-            # print some summary statistics, for the most popular builds that match the search criteria
-            if not self.print_stats:
-                return
+        # print all the winning morgues that matches the search criteria
+        for build in sorted(matches.keys()):
+            b = build[0] + build[1] + '^' + build[2].ljust(4) + str(build[3]).rjust(3) + ' ' + str(build[4]).ljust(5) + '  '
+            for line in sorted(matches[build]):
+                print(b + line)
 
-            # calc optional stats
-            build_counts = {}
-            for b, us in matches.items():
-                build = b[0] + b[1] + '^' + b[2]
-                cnt = len(us)
-                if build not in build_counts:
-                    build_counts[build] = 0
-                build_counts[build] += cnt
+        # print some summary statistics, for the most popular builds that match the search criteria
+        if not self.print_stats:
+            return
 
-            # print optional stats
-            max_count = sorted(set(build_counts.values()))[-1]
-            total_count = sum(build_counts.values())
-            print('\nMost popular build(s):')
-            for build, count in build_counts.items():
-                if count >= max_count:
-                    print('{0}/{1}:\t{2}'.format(count, total_count, build))
+        # calc optional stats
+        build_counts = {}
+        for b, us in matches.items():
+            build = b[0] + b[1] + '^' + b[2]
+            cnt = len(us)
+            if build not in build_counts:
+                build_counts[build] = 0
+            build_counts[build] += cnt
+
+        # print optional stats
+        max_count = sorted(set(build_counts.values()))[-self.print_stats:]
+        total_count = sum(build_counts.values())
+        print('\nMost popular build(s):')
+        for build, count in build_counts.items():
+            if count >= max_count:
+                print('{0}/{1}:\t{2}'.format(count, total_count, build))
 
     def find(self):
         """ read all the lines from any winning morgue files that you have lying around
