@@ -90,7 +90,8 @@ class WinningCatalog:
             build_counts[build] += cnt
 
         # print optional stats
-        the_cut = sorted(set(build_counts.values()))[-self.print_stats]
+        the_cut = sorted(set(build_counts.values()))
+        the_cut = the_cut[-min(self.print_stats, len(the_cut))]
         total_count = sum(build_counts.values())
         print('\nMost popular build(s):')
         bcs = sorted([(c,b) for b,c in build_counts.items() if c >= the_cut], reverse=True)
