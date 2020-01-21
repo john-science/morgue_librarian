@@ -72,7 +72,8 @@ class WinningCatalog:
 
         # print all the winning morgues that matches the search criteria
         for build in sorted(matches.keys()):
-            b = build[0] + build[1] + '^' + build[2].ljust(4) + str(build[3]).rjust(3) + ' ' + str(build[4]).ljust(5) + '  '
+            god_str = '^' + build[2].ljust(4) if len(build[2]) else '     '
+            b = build[0] + build[1] + god_str + str(build[3]).rjust(3) + ' ' + str(build[4]).ljust(5) + '  '
             for line in sorted(matches[build]):
                 print(b + line)
 
@@ -83,7 +84,9 @@ class WinningCatalog:
         # calc optional stats
         build_counts = {}
         for b, us in matches.items():
-            build = b[0] + b[1] + '^' + b[2]
+            build = b[0] + b[1]
+            if len(b[2]):
+                build += '^' + b[2]
             cnt = len(us)
             if build not in build_counts:
                 build_counts[build] = 0
