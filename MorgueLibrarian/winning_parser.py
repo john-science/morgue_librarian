@@ -12,6 +12,8 @@ games playing similar character builds to myself.
 
 But a side result of this data mining is I can learn lots of other things. For instance,
 what percentage of games do players win?
+
+TODO: Needs usage guide
 """
 from bz2 import BZ2Compressor, BZ2File
 from datetime import datetime
@@ -33,7 +35,7 @@ def main():
 
     save_flags = ('-s', '--save')
     for s in save_flags:
-        if s in args:
+        if s in argv[1:]:
             save_winners = True
             master_files.remove(s)
 
