@@ -8,6 +8,8 @@ class URLIterator:
     with an eye towards not hitting the same URL too often
     """
 
+    DOMAINS_TO_SKIP = ['http://dobrazupa.com']
+
     def __init__(self, url_set, wait=60.0):
         # load set of URLs into interleaving dictionary
         self.wait = min(60.0, abs(wait))
@@ -15,6 +17,9 @@ class URLIterator:
 
         for url in url_set:
             base_url = url[:url[8:].find('/') + 8].replace('https', 'http')
+            if base_url in URLIterator.DOMAINS_TO_SKIP:
+                continue
+
             if base_url not in self.urls:
                 self.urls[base_url] = []
 
