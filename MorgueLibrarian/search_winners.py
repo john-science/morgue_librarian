@@ -1,4 +1,4 @@
-""" Winning Morgue Cataloger
+""" Search all the Winning Morgues You've Catalogued
 """
 from glob import glob
 import os
@@ -26,11 +26,11 @@ def main():
         else:
             args[a] = arg
 
-    wc = WinningCatalog(data_dir, winners, print_stats)
+    wc = SearchWinners(data_dir, winners, print_stats)
     wc.print_matches(args[0], args[1], args[2], args[3], args[4])
 
 
-class WinningCatalog:
+class SearchWinners:
 
     def __init__(self, data_dir, prefix, print_stats=0):
         self.data_dir = data_dir
@@ -115,7 +115,7 @@ class WinningCatalog:
         for old_file in old_morgue_files:
             with open(old_file, 'r') as f:
                 for line in f.readlines():
-                    url, build = WinningCatalog.read_winning_line(line)
+                    url, build = SearchWinners.read_winning_line(line)
                     if build not in self.morgues:
                         self.morgues[build]= []
                     self.morgues[build].append(url)
@@ -125,7 +125,7 @@ class WinningCatalog:
         for old_file in old_morgue_files:
             with BZ2File(old_file, 'r') as f:
                 for line in f.readlines():
-                    url, build = WinningCatalog.read_winning_line(line)
+                    url, build = SearchWinners.read_winning_line(line)
                     if build not in self.morgues:
                         self.morgues[build]= []
                     self.morgues[build].append(url)
