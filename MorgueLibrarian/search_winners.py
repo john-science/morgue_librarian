@@ -1,4 +1,6 @@
 """ Search all the Winning Morgues You've Catalogued
+
+TODO: Usage guide.
 """
 from glob import glob
 import os
@@ -44,10 +46,10 @@ class SearchWinners:
 
         Args:
             species (str): species of winning character
-            background (str): background of winning character
-            god (str): final diety for the of winning character
-            num_runes (int): number of runes player had by end
-            version (float): major game version of the
+            backgrounds (str): background of winning character
+            gods (str): final diety for the of winning character
+            num_runes (str): number of runes player had by end
+            versions (str): major game version of the
         Returns: None
         """
         self.find()
@@ -56,15 +58,20 @@ class SearchWinners:
 
         # subset the morgues to match our search criteria
         if species != '-':
-            matches = {m:u for m, u in matches.items() if m[0] == species}
-        if background != '-':
-            matches = {m:u for m, u in matches.items() if m[1] == background}
-        if god != '-':
-            matches = {m:u for m, u in matches.items() if m[2] == god}
+            species = [s.lower().strip() for s in species.split(',')]
+            matches = {m:u for m, u in matches.items() if m[0].lower() in species}
+        if backgrounds != '-':
+            backgrounds = [b.lower().strip() for b in backgrounds.split(',')]
+            matches = {m:u for m, u in matches.items() if m[1].lower() in backgrounds}
+        if gods != '-':
+            gods = [g.lower().strip() for g in gods.split(',')]
+            matches = {m:u for m, u in matches.items() if m[2].lower() in gods}
         if num_runes != '-':
-            matches = {m:u for m, u in matches.items() if m[3] == int(num_runes)}
+            num_runes = [int(nr) for nr in num_runes.split(',')]
+            matches = {m:u for m, u in matches.items() if (m[3] >= min(num_runes) and m[3] <= max(num_runes))}
         if ver != '-':
-            matches = {m:u for m, u in matches.items() if m[4] == float(ver)}
+            ver = [float(v) for v in ver.split(',')]
+            matches = {m:u for m, u in matches.items() if (m[4] >= min(ver) and m[4] <= max(ver)}
 
         if not len(matches):
             print('No matches found.')
