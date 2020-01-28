@@ -28,8 +28,8 @@ def main():
         else:
             args[a] = arg
 
-    wc = SearchWinners(data_dir, winners, print_stats)
-    wc.print_matches(args[0], args[1], args[2], args[3], args[4])
+    sw = SearchWinners(data_dir, winners, print_stats)
+    sw.print_matches(args[0], args[1], args[2], args[3], args[4])
 
 
 class SearchWinners:
