@@ -40,7 +40,7 @@ class SearchWinners:
         self.print_stats = print_stats
         self.morgues = {}
 
-    def print_matches(self, species, background, god, num_runes, ver):
+    def print_matches(self, species, backgrounds, gods, num_runes, ver):
         """ Print any morgues that match the winning character build info provided
         (Defaults are given by "-".)
 
@@ -71,7 +71,7 @@ class SearchWinners:
             matches = {m:u for m, u in matches.items() if (m[3] >= min(num_runes) and m[3] <= max(num_runes))}
         if ver != '-':
             ver = [float(v) for v in ver.split(',')]
-            matches = {m:u for m, u in matches.items() if (m[4] >= min(ver) and m[4] <= max(ver)}
+            matches = {m:u for m, u in matches.items() if (m[4] >= min(ver) and m[4] <= max(ver))}
 
         if not len(matches):
             print('No matches found.')
