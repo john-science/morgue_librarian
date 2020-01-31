@@ -29,6 +29,7 @@ def main():
     2. open/read all winning runs in /data/, bzip or not
     3. print lines that match search criteria
     """
+    print("WARNING: This tool still under construction!")
     data_dir = DATA_DIR
     winners = WINNERS
 
