@@ -1,14 +1,24 @@
-""" This is just a down-and-dirty version of fsim that doesn't take brands into account.
+""" fsim.py
+
+Purpose:
+
+This is just a down-and-dirty version of fsim that doesn't take brands into account.
 It doesn't really belong in MorgueLibrarian.
 
 The math here doesn't really apply to the early game.
 
-TODO: Add a usage menu.
+Usage:
+
+    python fsim.py base_damage STR weapon_skill fighting_skill, enchant, slaying
+
 """
 from sys import argv
 
 
 def main():
+    if len(argv) < 7:
+        usage()
+
     print_damage(damage(int(argv[1]), int(argv[2]), int(argv[3]), int(argv[4]), int(argv[5]), int(argv[6])))
 
 
@@ -29,6 +39,12 @@ def damage(base_damage, strength, weapon_skill, fighting_skill, enchant, slaying
 def print_damage(tup):
     print('min\texpected\tmax')
     print('%1.0f' % tup[0] + '\t' + '%3.1f' % tup[1] + '\t\t' + '%3.1f' % tup[2])
+
+
+def usage():
+    """ Print a help menu to the screen, if the user enters a bad command line flag. """
+    print(__doc__)
+    exit()
 
 
 if __name__ == '__main__':
