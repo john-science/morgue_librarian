@@ -9,7 +9,7 @@ The math here doesn't really apply to the early game.
 
 Usage:
 
-    python fsim.py base_damage STR weapon_skill fighting_skill, enchant, slaying
+    python fsim.py  base_damage  STR  weapon_skill  fighting_skill  enchant  slaying
 
 """
 from sys import argv
