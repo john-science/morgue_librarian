@@ -21,7 +21,7 @@ BACKGROUNDS = {'abyssal': 'AK', 'abyssal knight': 'AK', 'air': 'AE', 'air elemen
                'transmuter': 'Tm', 'venom': 'VM', 'venom mage': 'VM', 'wanderer': 'Wn', 'warper': 'Wr', 'wizard': 'Wz'}
 BACKGROUNDS_ABR = {b.lower(): b for b in BACKGROUNDS.values()}
 
-GODS = {'ashenzari': 'Ash', 'beogh': 'Beo', 'cheibriados': 'Chei', 'council': 'Wu', 'dithmenos': 'Dith',
+GODS = {'ashenzari': 'Ash', 'beogh': 'Beo', 'cheibriados': 'Chei', 'council': 'Wu', 'dithmengos': 'Dith', 'dithmenos': 'Dith',
         'elyvilon': 'Ely', 'fedhas': 'Fed', 'fedhas madash': 'Fed', 'gozag': 'Goz', 'gozag ym sagoz': 'Goz',
         'hepliaklqana': 'Hep', 'jian': 'Wu', 'jiyva': 'Jiyva', 'kikubaaqudgha': 'Kik', 'lugonu': 'Lug',
         'madash': 'Fed', 'makhleb': 'Mak', 'muna': 'Sif', 'nemelex': 'Nem', 'nemelex xobeh': 'Nem', 'okawaru': 'Oka',
