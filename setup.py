@@ -10,7 +10,7 @@ readme = open('README.md', 'r').read()
 
 setup(
     name = "MorgueLibrarian",
-    version = "0.1.1",
+    version = "0.1.2",
     author = "John Stilley",
     description = "Tools for parsing DCSS morgue files.",
     license = "GPLv3",
