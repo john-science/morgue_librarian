@@ -186,7 +186,7 @@ class WinningParser:
             elif line.strip().startswith('... and '):
                 num_runes = int(line.split('... and ')[1].split(' runes')[0])
             elif line.strip().startswith('Was ') and line.strip().endswith('.'):
-                god = line.lower().split('.')[0].split(' ')[-1]
+                god = line.lower().split('.')[0].replace(' (penitent)', '').split(' ')[-1]
             elif ('the' in line) and ('(' in line) and (')' in line) and ('Turns:' in line) and ('Time:' in line):
                 the_line = line
                 break
