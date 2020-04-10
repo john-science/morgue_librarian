@@ -1,6 +1,23 @@
 """ Search all the Winning Morgues You've Catalogued
 
-TODO: Usage guide.
+Purpose:
+
+     Assuming you have a bunch of winning morgues stockpiled locally, search through them for winning games that
+     match a particular character build.
+     The goal here is to allow you to see other players who have one playing the same build as you.
+
+Usage:
+
+     python MorgueLibrarian/search_winners.py Ha Hu
+     python MorgueLibrarian/search_winners.py Ha Hu -stats
+     python MorgueLibrarian/search_winners.py Dr IE Veh
+     python MorgueLibrarian/search_winners.py Ha Hu Oka 3
+     python MorgueLibrarian/search_winners.py Ha Hu Oka 3,4,5
+     python MorgueLibrarian/search_winners.py Ha Hu Oka - 0.23
+     python MorgueLibrarian/search_winners.py Ha Hu Oka - 0.23,0.24
+     python MorgueLibrarian/search_winners.py Ha Hu - 3 0.24,0.25
+     python MorgueLibrarian/search_winners.py Mi Be Trog 3,4,5 0.23,0.24,0.25 -stats
+
 """
 from glob import glob
 import os
