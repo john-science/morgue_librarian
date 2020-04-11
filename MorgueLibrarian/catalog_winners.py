@@ -40,10 +40,8 @@ def main():
 class CatalogWinners(SearchWinners):
 
     def __init__(self, data_dir, prefix):
-        self.data_dir = data_dir
-        self.prefix = prefix
-        self.morgues = {}
         super(CatalogWinners, self).__init__(data_dir, prefix)
+        self.morgues = {}
         self.find()
 
     def print_basics(self):
