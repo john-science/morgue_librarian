@@ -47,7 +47,9 @@ class CatalogWinners(SearchWinners):
         self.find()
 
     def print_basics(self):
-        """ TODO
+        """ This is just a first-pass method for printing an overall picture of the morgues you have locally
+
+        Returns: None
         """
         print("\nTotal Number of Morgues: {0}\n".format(sum(len(v) for v in self.morgues.values())))
 
