@@ -9,7 +9,7 @@ Purpose:
 Usage:
 
      python MorgueLibrarian/search_winners.py Ha Hu
-     python MorgueLibrarian/search_winners.py Ha Hu -stats
+     python MorgueLibrarian/search_winners.py Ha Hu -stats:3
      python MorgueLibrarian/search_winners.py Dr IE Veh
      python MorgueLibrarian/search_winners.py Ha Hu Oka 3
      python MorgueLibrarian/search_winners.py Ha Hu Oka 3,4,5
